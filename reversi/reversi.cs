@@ -68,7 +68,6 @@ Point hier = new Point();
 void klik(object o, MouseEventArgs mea)
 {
     hier = mea.Location;
-    gr.fillellipse
     scherm.Invalidate();
 }
 
