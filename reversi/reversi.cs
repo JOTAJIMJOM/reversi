@@ -105,30 +105,49 @@ afbeelding.Size = new Size(500, 500);
 afbeelding.Image = bitmap;
 Graphics bitgr = Graphics.FromImage(bitmap);
 
-int x = 100;
-int y = 75;
-int t = 0;
+int bordX = 100;
+int bordY = 180;
+int bordLengte = 300;
+int bordDimentie = 4;
+Pen penZwart = new Pen(Color.Black, 3);
 
-bitgr.FillRectangle(Brushes.DarkGray, x, x + y, 3 * x, 3 * x); //bordondergrond gewoon voor de mooi
 
-Pen pen = new Pen(Color.Black, 3);
-Point[] lijntjes = new Point[13];
-foreach (Point p in lijntjes) //succes hiermee lol
+//bordData array aanmaken voor gebruik is de eerste waarde het x vak tweede het y vak en derde een waarde van het vakje
+//0 is voor het vakjes x coordinaat, 1 is voor het y coordinaat en 2 is voor de status van het vakje
+int[,,] bordData = new int[bordDimentie,bordDimentie,3];
+
+
+bitgr.FillRectangle(Brushes.DarkGray, bordX, bordY, bordLengte, bordLengte); //bordondergrond
+for (int t = 0; t <= bordDimentie; t += 1) //bordlijnen tekenen en bordData Array x en y cordinaten vakjes geven en de vakjes hun waarde op 0 zetten
 {
-    if (t < 7)
+    int xPos = (int)(t / (double)(bordDimentie) * bordLengte) + bordX;
+    bitgr.DrawLine(penZwart, xPos, bordY, xPos, bordY + bordLengte);
+
+    if (t < bordDimentie)
     {
-        bitgr.DrawLine(pen, x + x / 2 * t, x + y, x + x / 2 * t, x * 4 + y);
-        t = t + 1;
+        for (int t2 = 0; t2 < bordDimentie; t2 += 1)
+        {
+            bordData[t, t2, 2] = 0;
+            bordData[t, t2, 0] = xPos;
+        }
     }
-    if (t >= 7)
+}
+for (int t = 0; t <= bordDimentie; t += 1)
+{
+    int yPos = (int)(t / (double)(bordDimentie) * bordLengte) + bordY;
+    bitgr.DrawLine(penZwart, bordX, yPos, bordX + bordLengte, yPos);
+
+    if (t < bordDimentie)
     {
-        bitgr.DrawLine(pen, x, x + x / 2 * (t - 7) + y, x * 4, x + x / 2 * (t - 7) + y);
-        t = t + 1;
+        for (int t2 = 0; t2 < bordDimentie; t2 += 1)
+        { 
+            bordData[t2, t, 1] = yPos;
+        }
     }
 }
 
-bitgr.FillEllipse(Brushes.Red, x, x, x / 2, x / 2); //deze dingen en de stenen zelf maak ik nog wel een keer mooier
-bitgr.FillEllipse(Brushes.Blue, 3 * x + x / 2, x, x / 2, x / 2); //de technieken verbeteren however mag jij doen als je wil
+bitgr.FillEllipse(Brushes.Red, bordX, bordX, bordX / 2, bordX / 2); //deze dingen en de stenen zelf maak ik nog wel een keer mooier
+bitgr.FillEllipse(Brushes.Blue, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2); //de technieken verbeteren however mag jij doen als je wil
 
 Point hier = new Point();
 void teken(object o, PaintEventArgs pea)
