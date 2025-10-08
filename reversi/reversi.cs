@@ -97,72 +97,79 @@ if ()
 
 }*/
 
-Bitmap bitmap = new Bitmap(500, 500); //voor alles dat niet verandert bij het spelen van stenen
+Bitmap bitmapBord = new Bitmap(500, 500); //voor alles dat niet verandert bij het spelen van stenen
 Label afbeelding = new Label();
 scherm.Controls.Add(afbeelding);
 afbeelding.Location = new Point(0, 0);
 afbeelding.Size = new Size(500, 500);
-afbeelding.Image = bitmap;
-Graphics bitgr = Graphics.FromImage(bitmap);
+afbeelding.Image = bitmapBord;
+Graphics bitgr = Graphics.FromImage(bitmapBord);
 
 int bordX = 100;
 int bordY = 180;
 int bordLengte = 300;
 int bordDimensie = 6;
+Pen penZwart = new Pen(Color.Black, 3);
 
 void bordDimensieSelectie(object o, EventArgs ea)
 {
     if (bordSelectie.SelectedItem == "4x4")
     {
         bordDimensie = 4;
+        penZwart.Width = 4;
+        afbeelding.Invalidate();
     }
     if (bordSelectie.SelectedItem == "6x6")
     {
         bordDimensie = 6;
+        penZwart.Width = 3;
+        afbeelding.Invalidate();
     }
     if (bordSelectie.SelectedItem == "8x8")
     {
         bordDimensie = 8;
+        penZwart.Width = 2;
+        afbeelding.Invalidate();
     }
     if (bordSelectie.SelectedItem == "10x10")
     {
         bordDimensie = 10;
+        penZwart.Width = 2;
+        afbeelding.Invalidate();
     }
-}
-
-Pen penZwart = new Pen(Color.Black, 3);
 
 
-//bordData array aanmaken voor gebruik is de eerste waarde het x vak tweede het y vak en derde een waarde van het vakje
-//0 is voor het vakjes x coordinaat, 1 is voor het y coordinaat en 2 is voor de status van het vakje
-int[,,] bordData = new int[bordDimensie,bordDimensie,3];
+    //bordData array aanmaken voor gebruik is de eerste waarde het x vak tweede het y vak en derde een waarde van het vakje
+    //0 is voor het vakjes x coordinaat, 1 is voor het y coordinaat en 2 is voor de status van het vakje
+    int[,,] bordData = new int[bordDimensie, bordDimensie, 3];
 
 
-bitgr.FillRectangle(Brushes.DarkGray, bordX, bordY, bordLengte, bordLengte); //bordondergrond
-for (int t = 0; t <= bordDimensie; t += 1) //bordlijnen tekenen en bordData Array x en y cordinaten vakjes geven en de vakjes hun waarde op 0 zetten
-{
-    int xPos = (int)(t / (double)(bordDimensie) * bordLengte) + bordX;
-    bitgr.DrawLine(penZwart, xPos, bordY, xPos, bordY + bordLengte);
-
-    if (t < bordDimensie)
+    bitgr.FillRectangle(Brushes.DarkGray, bordX, bordY, bordLengte, bordLengte); //bordondergrond
+    for (int t = 0; t <= bordDimensie; t += 1) //bordlijnen tekenen en bordData Array x en y cordinaten vakjes geven en de vakjes hun waarde op 0 zetten
     {
-        for (int t2 = 0; t2 < bordDimensie; t2 += 1)
+        int xPos = (int)(t / (double)(bordDimensie) * bordLengte) + bordX;
+        bitgr.DrawLine(penZwart, xPos, bordY, xPos, bordY + bordLengte);
+
+        if (t < bordDimensie)
         {
-            bordData[t, t2, 2] = 0;
-            bordData[t, t2, 0] = xPos;
+            for (int t2 = 0; t2 < bordDimensie; t2 += 1)
+            {
+                bordData[t, t2, 2] = 0;
+                bordData[t, t2, 0] = xPos;
+            }
         }
     }
-}
-for (int t = 0; t <= bordDimensie; t += 1)
-{
-    int yPos = (int)(t / (double)(bordDimensie) * bordLengte) + bordY;
-    bitgr.DrawLine(penZwart, bordX, yPos, bordX + bordLengte, yPos);
-
-    if (t < bordDimensie)
+    for (int t = 0; t <= bordDimensie; t += 1)
     {
-        for (int t2 = 0; t2 < bordDimensie; t2 += 1)
-        { 
-            bordData[t2, t, 1] = yPos;
+        int yPos = (int)(t / (double)(bordDimensie) * bordLengte) + bordY;
+        bitgr.DrawLine(penZwart, bordX, yPos, bordX + bordLengte, yPos);
+
+        if (t < bordDimensie)
+        {
+            for (int t2 = 0; t2 < bordDimensie; t2 += 1)
+            {
+                bordData[t2, t, 1] = yPos;
+            }
         }
     }
 }
@@ -205,5 +212,8 @@ void klik(object o, EventArgs ea)
 scherm.MouseClick += muisklik; //hoe werkt dit
 bordSelectie.SelectedValueChanged += bordDimensieSelectie;
 //nieuwspel.Click += klik(); HOE WERKT DIT
+
+
+bordDimensieSelectie(null, null);
 
 Application.Run(scherm);
