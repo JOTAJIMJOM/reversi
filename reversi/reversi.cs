@@ -1,5 +1,6 @@
 using System; //oke niet judgen ik heb niet op handigheid gefocust
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 
 Form scherm = new Form();
@@ -178,15 +179,10 @@ bitgr.FillEllipse(Brushes.Red, bordX, bordX, bordX / 2, bordX / 2); //deze dinge
 bitgr.FillEllipse(Brushes.Blue, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2); //de technieken verbeteren however mag jij doen als je wil
 
 Point hier = new Point();
-void teken(object o, PaintEventArgs pea)
-{
-    Graphics paintgr = pea.Graphics;
-    paintgr.FillEllipse(Brushes.Red, hier.X - 25, hier.Y - 25, 50, 50); //ik snap niet hoe je dit werkend krijgt
-    //stenen tekenen
-}
 void muisklik(object o, MouseEventArgs mea)
 {
     hier = mea.Location;
+    bitgr.FillEllipse(Brushes.Red, hier.X - 25, hier.Y - 25, 50, 50);
     scherm.Invalidate();
     //if (hier = ...)
     //locatie waar steentje komt
