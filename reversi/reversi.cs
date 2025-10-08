@@ -1,6 +1,5 @@
-using System; //oke niet judgen ik heb niet op handigheid gefocust
+using System;
 using System.Drawing;
-using System.Reflection;
 using System.Windows.Forms;
 
 Form scherm = new Form();
@@ -8,10 +7,10 @@ scherm.Text = "reversi";
 scherm.BackColor = Color.LightGray;
 scherm.ClientSize = new Size(500, 500); //misschien dit als variabele nemen voor de rest? nu is de rest complicated en ugly
 
-Font font = new Font("Times New Roman", 12, FontStyle.Bold); //klasse voor de fonts zou chill zijn
-Font stenenFont = new Font("Times New Roman", 16, FontStyle.Bold);
+Font font = new Font("Times New Roman", 11, FontStyle.Bold); //klasse voor de fonts zou chill zijn
+Font stenenFont = new Font("Times New Roman", 12, FontStyle.Bold);
 Size buttonSize = new Size(100, 30);
-Size textSize = new Size(15, 20);
+Size textSize = new Size(22, 20);
 
 Button nieuwspel = new Button(); //klasse maken voor buttons lijkt me ook wel handig..
 nieuwspel.Location = new Point(75, 40);
@@ -29,11 +28,11 @@ help.BackColor = Color.FromArgb(180, 180, 255);
 help.Font = font;
 help.Text = "Help";
 
-int intRood = 0; //moet updaten bij een refreshed aantal stenen dat al geplaatst is op het bord
-int intBlauw = 0;
+int intRood = 2; //moet updaten bij een refreshed aantal stenen dat al geplaatst is op het bord
+int intBlauw = 2;
 
 Label text2 = new Label();//deze stuff moet sowieso een klasse holy moly wat ugly
-text2.Location = new Point(150, 115);
+text2.Location = new Point(115, 115);
 text2.Size = textSize;
 text2.Font = stenenFont;
 scherm.Controls.Add(text2);
@@ -41,7 +40,7 @@ text2.ForeColor = Color.Red;
 text2.Text = $"{intRood}";
 
 Label text3 = new Label();
-text3.Location = new Point(333, 115);
+text3.Location = new Point(365, 115);
 text3.Size = textSize;
 text3.Font = stenenFont;
 scherm.Controls.Add(text3);
@@ -66,21 +65,7 @@ bordSelectie.Items.Add("8x8");
 bordSelectie.Items.Add("10x10");
 bordSelectie.Font = font;
 
-int beurt = 1;
-
-if (beurt % 2 != 0)
-{
-    text.ForeColor = Color.DarkRed;
-    text.Text = "Rood aan zet";
-}
-
-if (beurt % 2 == 0) //hoi lucas!! fijn datie werkt (^:
-{
-    text.ForeColor = Color.DarkBlue;
-    text.Text = "Blauw aan zet";
-}
-
-/*if ()
+/*if (intRood > intBlauw) bij einde spel
 {
     text.ForeColor = Color.DarkRed;
     text.Text = "Rood heeft gewonnen!";
@@ -89,7 +74,7 @@ if (beurt % 2 == 0) //hoi lucas!! fijn datie werkt (^:
 
 }
 
-if ()
+if (intRood < intBlauw) bij einde spel
 {
     text.ForeColor = Color.DarkBlue;
     text.Text = "Blauw heeft gewonnen!";
@@ -139,35 +124,44 @@ void bordDimensieSelectie(object o, EventArgs ea)
         afbeelding.Invalidate();
     }
 
-
-    //bordData array aanmaken voor gebruik is de eerste waarde het x vak tweede het y vak en derde een waarde van het vakje
+    int[,] bordStatus = new int[5, 5];
+    bordStatus[2, 2] = 2; bordStatus[3, 2] = 1; bordStatus[2, 3] = 2; bordStatus[3, 3] = 1;
+    foreach (int i in bordStatus)
+    {
+        if (i == 1)
+        {
+            //klassen aanroepen voor steentjes tekenen
+            //vgm is dit tzelfde als wat jij hieronder doet maar <deze manier is als t goed is wel meer de bedoeling, kijk maar of je er iets mee doet lol
+        }
+    }
+    //bordData array aanmaken, voor gebruik is de eerste waarde het x vak tweede het y vak en derde een waarde van het vakje
     //0 is voor het vakjes x coordinaat, 1 is voor het y coordinaat en 2 is voor de status van het vakje
     int[,,] bordData = new int[bordDimensie, bordDimensie, 3];
 
 
     bitgr.FillRectangle(Brushes.DarkGray, bordX, bordY, bordLengte, bordLengte); //bordondergrond
-    for (int t = 0; t <= bordDimensie; t += 1) //bordlijnen tekenen en bordData Array x en y cordinaten vakjes geven en de vakjes hun waarde op 0 zetten
+    for (int t = 0; t <= bordDimensie; t++) //bordlijnen tekenen en bordData Array x en y cordinaten vakjes geven en de vakjes hun waarde op 0 zetten
     {
         int xPos = (int)(t / (double)(bordDimensie) * bordLengte) + bordX;
         bitgr.DrawLine(penZwart, xPos, bordY, xPos, bordY + bordLengte);
 
         if (t < bordDimensie)
         {
-            for (int t2 = 0; t2 < bordDimensie; t2 += 1)
+            for (int t2 = 0; t2 < bordDimensie; t2++)
             {
                 bordData[t, t2, 2] = 0;
                 bordData[t, t2, 0] = xPos;
             }
         }
     }
-    for (int t = 0; t <= bordDimensie; t += 1)
+    for (int t = 0; t <= bordDimensie; t++)
     {
         int yPos = (int)(t / (double)(bordDimensie) * bordLengte) + bordY;
         bitgr.DrawLine(penZwart, bordX, yPos, bordX + bordLengte, yPos);
 
         if (t < bordDimensie)
         {
-            for (int t2 = 0; t2 < bordDimensie; t2 += 1)
+            for (int t2 = 0; t2 < bordDimensie; t2++)
             {
                 bordData[t2, t, 1] = yPos;
             }
@@ -175,17 +169,43 @@ void bordDimensieSelectie(object o, EventArgs ea)
     }
 }
 
-bitgr.FillEllipse(Brushes.Red, bordX, bordX, bordX / 2, bordX / 2); //deze dingen en de stenen zelf maak ik nog wel een keer mooier
-bitgr.FillEllipse(Brushes.Blue, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2); //de technieken verbeteren however mag jij doen als je wil
+Pen penRood = new Pen(Brushes.Red, 10);
+Pen penBlauw = new Pen(Brushes.Blue, 10);
+bitgr.DrawEllipse(penRood, bordX, bordX, bordX / 2, bordX / 2);
+bitgr.DrawEllipse(penBlauw, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2);
 
-Point hier = new Point();
+int beurt = 0;
+text.ForeColor = Color.DarkRed;
+text.Text = "Rood aan zet";
+
 void muisklik(object o, MouseEventArgs mea)
 {
-    hier = mea.Location;
-    bitgr.FillEllipse(Brushes.Red, hier.X - 25, hier.Y - 25, 50, 50);
-    scherm.Invalidate();
-    //if (hier = ...)
-    //locatie waar steentje komt
+    Point hier = mea.Location;
+    if (bordX < hier.X && hier.X < bordX + bordLengte && bordY < hier.Y && hier.Y < bordY + bordLengte)
+    {
+        if (beurt % 2 == 0)
+        {
+            bitgr.FillEllipse(Brushes.Red, hier.X - 24, hier.Y - 24, 48, 48);
+            bitgr.FillEllipse(Brushes.White, hier.X + 2, hier.Y - 19, 12, 12);
+            text.ForeColor = Color.DarkBlue;
+            text.Text = "Blauw aan zet";
+            beurt++;
+            intRood++;
+            text2.Text = $"{intRood}";
+            afbeelding.Invalidate();
+        }
+        else
+        {
+            bitgr.FillEllipse(Brushes.Blue, hier.X - 24, hier.Y - 24, 48, 48);
+            bitgr.FillEllipse(Brushes.White, hier.X + 2, hier.Y - 19, 12, 12);
+            text.ForeColor = Color.DarkRed;
+            text.Text = "Rood aan zet";
+            beurt++;
+            intBlauw++;
+            text3.Text = $"{intBlauw}";
+            afbeelding.Invalidate();
+        }
+    }
 }
 
 void klik(object o, EventArgs ea)
@@ -199,13 +219,9 @@ void klik(object o, EventArgs ea)
         //kleine witte cirkeltjes op beschikbare plekken tekenen
         scherm.Invalidate();
     }
-    if (o == bordSelectie) //eh outdated maar uiteindelijk moet je ofc wel echt een andere bordgrootte kunnen krijgen
-    {
-
-    }
 }
 
-scherm.MouseClick += muisklik; //hoe werkt dit
+afbeelding.MouseClick += muisklik; //hoe werkt dit
 bordSelectie.SelectedValueChanged += bordDimensieSelectie;
 //nieuwspel.Click += klik(); HOE WERKT DIT
 
