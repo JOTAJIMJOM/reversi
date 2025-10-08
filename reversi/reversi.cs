@@ -28,19 +28,6 @@ help.BackColor = Color.FromArgb(180, 180, 255);
 help.Font = font;
 help.Text = "Help";
 
-ComboBox bord = new ComboBox(); //dropdown menu opties koppelen aan verschillende bordgroottes
-bord.Location = new Point(200, 120);
-bord.Size = new Size(100, 30);
-scherm.Controls.Add(bord);
-bord.BackColor = Color.FromArgb(255, 255, 255);
-bord.Font = font;
-bord.Text = "6x6";
-bord.Items.Add("4x4"); //idk of dit korter kan
-bord.Items.Add("6x6");
-bord.Items.Add("8x8");
-bord.Items.Add("10x10");
-bord.Font = font;
-
 int intRood = 0; //moet updaten bij een refreshed aantal stenen dat al geplaatst is op het bord
 int intBlauw = 0;
 
@@ -61,9 +48,22 @@ text3.ForeColor = Color.Blue;
 text3.Text = $"{intBlauw}";
 
 Label text = new Label();
-text.Location = new Point(203, 45); //bro waar slaat dit op
+text.Location = new Point(203, 45);
 text.Font = font;
 scherm.Controls.Add(text);
+
+ComboBox bordSelectie = new ComboBox(); //dropdown menu opties koppelen aan verschillende bordgroottes
+bordSelectie.Location = new Point(200, 120);
+bordSelectie.Size = new Size(100, 30);
+scherm.Controls.Add(bordSelectie);
+bordSelectie.BackColor = Color.FromArgb(255, 255, 255);
+bordSelectie.Font = font;
+bordSelectie.Text = "6x6";
+bordSelectie.Items.Add("4x4");
+bordSelectie.Items.Add("6x6");
+bordSelectie.Items.Add("8x8");
+bordSelectie.Items.Add("10x10");
+bordSelectie.Font = font;
 
 int beurt = 1;
 
@@ -108,38 +108,59 @@ Graphics bitgr = Graphics.FromImage(bitmap);
 int bordX = 100;
 int bordY = 180;
 int bordLengte = 300;
-int bordDimentie = 4;
+int bordDimensie = 6;
+
+void bordDimensieSelectie(object o, EventArgs ea)
+{
+    if (bordSelectie.SelectedItem == "4x4")
+    {
+        bordDimensie = 4;
+    }
+    if (bordSelectie.SelectedItem == "6x6")
+    {
+        bordDimensie = 6;
+    }
+    if (bordSelectie.SelectedItem == "8x8")
+    {
+        bordDimensie = 8;
+    }
+    if (bordSelectie.SelectedItem == "10x10")
+    {
+        bordDimensie = 10;
+    }
+}
+
 Pen penZwart = new Pen(Color.Black, 3);
 
 
 //bordData array aanmaken voor gebruik is de eerste waarde het x vak tweede het y vak en derde een waarde van het vakje
 //0 is voor het vakjes x coordinaat, 1 is voor het y coordinaat en 2 is voor de status van het vakje
-int[,,] bordData = new int[bordDimentie,bordDimentie,3];
+int[,,] bordData = new int[bordDimensie,bordDimensie,3];
 
 
 bitgr.FillRectangle(Brushes.DarkGray, bordX, bordY, bordLengte, bordLengte); //bordondergrond
-for (int t = 0; t <= bordDimentie; t += 1) //bordlijnen tekenen en bordData Array x en y cordinaten vakjes geven en de vakjes hun waarde op 0 zetten
+for (int t = 0; t <= bordDimensie; t += 1) //bordlijnen tekenen en bordData Array x en y cordinaten vakjes geven en de vakjes hun waarde op 0 zetten
 {
-    int xPos = (int)(t / (double)(bordDimentie) * bordLengte) + bordX;
+    int xPos = (int)(t / (double)(bordDimensie) * bordLengte) + bordX;
     bitgr.DrawLine(penZwart, xPos, bordY, xPos, bordY + bordLengte);
 
-    if (t < bordDimentie)
+    if (t < bordDimensie)
     {
-        for (int t2 = 0; t2 < bordDimentie; t2 += 1)
+        for (int t2 = 0; t2 < bordDimensie; t2 += 1)
         {
             bordData[t, t2, 2] = 0;
             bordData[t, t2, 0] = xPos;
         }
     }
 }
-for (int t = 0; t <= bordDimentie; t += 1)
+for (int t = 0; t <= bordDimensie; t += 1)
 {
-    int yPos = (int)(t / (double)(bordDimentie) * bordLengte) + bordY;
+    int yPos = (int)(t / (double)(bordDimensie) * bordLengte) + bordY;
     bitgr.DrawLine(penZwart, bordX, yPos, bordX + bordLengte, yPos);
 
-    if (t < bordDimentie)
+    if (t < bordDimensie)
     {
-        for (int t2 = 0; t2 < bordDimentie; t2 += 1)
+        for (int t2 = 0; t2 < bordDimensie; t2 += 1)
         { 
             bordData[t2, t, 1] = yPos;
         }
@@ -175,14 +196,14 @@ void klik(object o, EventArgs ea)
         //kleine witte cirkeltjes op beschikbare plekken tekenen
         scherm.Invalidate();
     }
-    if (o == bord) //eh outdated maar uiteindelijk moet je ofc wel echt een andere bordgrootte kunnen krijgen
+    if (o == bordSelectie) //eh outdated maar uiteindelijk moet je ofc wel echt een andere bordgrootte kunnen krijgen
     {
 
     }
 }
 
 scherm.MouseClick += muisklik; //hoe werkt dit
+bordSelectie.SelectedValueChanged += bordDimensieSelectie;
 //nieuwspel.Click += klik(); HOE WERKT DIT
 
-scherm.Paint += teken;
-Application.Run(scherm); //i am silly :3
+Application.Run(scherm);
