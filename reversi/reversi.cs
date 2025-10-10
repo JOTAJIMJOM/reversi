@@ -124,16 +124,6 @@ void bordDimensieSelectie(object o, EventArgs ea)
         afbeelding.Invalidate();
     }
 
-    int[,] bordStatus = new int[5, 5];
-    bordStatus[2, 2] = 2; bordStatus[3, 2] = 1; bordStatus[2, 3] = 2; bordStatus[3, 3] = 1;
-    foreach (int i in bordStatus)
-    {
-        if (i == 1)
-        {
-            //klassen aanroepen voor steentjes tekenen
-            //vgm is dit tzelfde als wat jij hieronder doet maar <deze manier is als t goed is wel meer de bedoeling, kijk maar of je er iets mee doet lol
-        }
-    }
     //bordData array aanmaken, voor gebruik is de eerste waarde het x vak tweede het y vak en derde een waarde van het vakje
     //0 is voor het vakjes x coordinaat, 1 is voor het y coordinaat en 2 is voor de status van het vakje
     int[,,] bordData = new int[bordDimensie, bordDimensie, 3];
@@ -164,6 +154,12 @@ void bordDimensieSelectie(object o, EventArgs ea)
             for (int t2 = 0; t2 < bordDimensie; t2++)
             {
                 bordData[t2, t, 1] = yPos;
+                if (bordData[t2, t, 2] == 1)
+                {
+                    int cirkelGrootte = 40;
+                    int offset = cirkelGrootte / 2;
+                    bitgr.FillEllipse(Brushes.Red, bordData[t2, t, 0] - offset, bordData[t2, t, 1] - offset, cirkelGrootte, cirkelGrootte);
+                }
             }
         }
     }
