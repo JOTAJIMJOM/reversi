@@ -1,20 +1,18 @@
-using System; //oke niet judgen ik heb niet op handigheid gefocust
-using System.Diagnostics;
+using System;
 using System.Drawing;
-using System.Reflection;
 using System.Windows.Forms;
 
 Form scherm = new Form();
 scherm.Text = "reversi";
 scherm.BackColor = Color.Moccasin;
-scherm.ClientSize = new Size(500, 500); //misschien dit als variabele nemen voor de rest? nu is de rest complicated en ugly
+scherm.ClientSize = new Size(500, 500);
 
-Font font = new Font("Times New Roman", 12, FontStyle.Bold); //klasse voor de fonts zou chill zijn
-Font stenenFont = new Font("Times New Roman", 16, FontStyle.Bold);
+Font font = new Font("Times New Roman", 11, FontStyle.Bold);
+Font stenenFont = new Font("Times New Roman", 12, FontStyle.Bold);
 Size buttonSize = new Size(100, 30);
-Size textSize = new Size(15, 20);
+Size textSize = new Size(22, 20);
 
-Button nieuwspel = new Button(); //klasse maken voor buttons lijkt me ook wel handig..
+Button nieuwspel = new Button();
 nieuwspel.Location = new Point(75, 40);
 nieuwspel.Size = buttonSize;
 scherm.Controls.Add(nieuwspel);
@@ -30,31 +28,32 @@ help.BackColor = Color.FromArgb(180, 180, 255);
 help.Font = font;
 help.Text = "Help";
 
-int intRood = 0; //moet updaten bij een refreshed aantal stenen dat al geplaatst is op het bord
-int intBlauw = 0;
+int beurt = 1;
+int intRood = 2;
+int intBlauw = 2;
 
-Label text2 = new Label();//deze stuff moet sowieso een klasse holy moly wat ugly
-text2.Location = new Point(150, 115);
-text2.Size = textSize;
-text2.Font = stenenFont;
-scherm.Controls.Add(text2);
-text2.ForeColor = Color.Red;
-text2.Text = $"{intRood}";
+Label aantalRood = new Label();
+aantalRood.Location = new Point(115, 115);
+aantalRood.Size = textSize;
+aantalRood.Font = stenenFont;
+scherm.Controls.Add(aantalRood);
+aantalRood.ForeColor = Color.Red;
+aantalRood.Text = $"{intRood}";
 
-Label text3 = new Label();
-text3.Location = new Point(333, 115);
-text3.Size = textSize;
-text3.Font = stenenFont;
-scherm.Controls.Add(text3);
-text3.ForeColor = Color.Blue;
-text3.Text = $"{intBlauw}";
+Label aantalBlauw = new Label();
+aantalBlauw.Location = new Point(365, 115);
+aantalBlauw.Size = textSize;
+aantalBlauw.Font = stenenFont;
+scherm.Controls.Add(aantalBlauw);
+aantalBlauw.ForeColor = Color.Blue;
+aantalBlauw.Text = $"{intBlauw}";
 
-Label text = new Label();
-text.Location = new Point(203, 45);
-text.Font = font;
-scherm.Controls.Add(text);
+Label status = new Label();
+status.Location = new Point(203, 45);
+status.Font = font;
+scherm.Controls.Add(status);
 
-ComboBox bordSelectie = new ComboBox(); //dropdown menu opties koppelen aan verschillende bordgroottes
+ComboBox bordSelectie = new ComboBox();
 bordSelectie.Location = new Point(200, 120);
 bordSelectie.Size = new Size(100, 30);
 scherm.Controls.Add(bordSelectie);
@@ -67,44 +66,12 @@ bordSelectie.Items.Add("8x8");
 bordSelectie.Items.Add("10x10");
 bordSelectie.Font = font;
 
-int beurt = 1;
-
-if (beurt % 2 != 0)
-{
-    text.ForeColor = Color.DarkRed;
-    text.Text = "Rood aan zet";
-}
-
-if (beurt % 2 == 0) //hoi lucas!! fijn datie werkt (^:
-{
-    text.ForeColor = Color.DarkBlue;
-    text.Text = "Blauw aan zet";
-}
-
-/*if ()
-{
-    text.ForeColor = Color.DarkRed;
-    text.Text = "Rood heeft gewonnen!";
-
-    alle troep van de interface afgooien
-
-}
-
-if ()
-{
-    text.ForeColor = Color.DarkBlue;
-    text.Text = "Blauw heeft gewonnen!";
-
-    alle troep van de interface afgooien
-
-}*/
-
-Bitmap bitmapBord = new Bitmap(500, 500); //voor alles dat niet verandert bij het spelen van stenen
-Label afbeelding = new Label();
-scherm.Controls.Add(afbeelding);
-afbeelding.Location = new Point(0, 0);
-afbeelding.Size = new Size(500, 500);
-afbeelding.Image = bitmapBord;
+Bitmap bitmapBord = new Bitmap(500, 500);
+Label bordLabel = new Label();
+scherm.Controls.Add(bordLabel);
+bordLabel.Location = new Point(0, 0);
+bordLabel.Size = new Size(500, 500);
+bordLabel.Image = bitmapBord;
 Graphics bitgr = Graphics.FromImage(bitmapBord);
 
 int bordX = 100;
@@ -117,108 +84,94 @@ Pen penZwart = new Pen(Color.Black, 3);
 int[,,] bordData = new int[bordDimensie, bordDimensie, 3];
 void bordDimensieSelectie(object o, EventArgs ea)
 {
-    if (bordSelectie.SelectedItem == "4x4")//geselecteerde bordgrootte toepassen
+    if (bordSelectie.SelectedItem == "4x4")
     {
         bordDimensie = 4;
         penZwart.Width = 4;
-        afbeelding.Invalidate();
     }
     if (bordSelectie.SelectedItem == "6x6")
     {
         bordDimensie = 6;
         penZwart.Width = 3;
-        afbeelding.Invalidate();
     }
     if (bordSelectie.SelectedItem == "8x8")
     {
         bordDimensie = 8;
         penZwart.Width = 2;
-        afbeelding.Invalidate();
     }
     if (bordSelectie.SelectedItem == "10x10")
     {
         bordDimensie = 10;
         penZwart.Width = 2;
-        afbeelding.Invalidate();
     }
+    beurt = 1;
+    status.Location = new Point(203, 45);
+    status.ForeColor = Color.DarkRed;
+    status.Text = "Rood aan zet";
+    intRood = 2;
+    intBlauw = 2;
+    aantalRood.Text = $"{intRood}";
+    aantalBlauw.Text = $"{intBlauw}";
+    bordLabel.Invalidate();
 
     bordVakjeLengte = bordLengte / bordDimensie;
 
-    bitgr.FillRectangle(Brushes.WhiteSmoke, bordX, bordY, bordLengte, bordLengte); //bordondergrond tekenen
+    bitgr.FillRectangle(Brushes.WhiteSmoke, bordX, bordY, bordLengte, bordLengte);
 
-    //bordData array aanmaken voor gebruik is de eerste waarde het x vak tweede het y vak en derde een waarde van het vakje
-        {
-            //klassen aanroepen voor steentjes tekenen
-            //vgm is dit tzelfde als wat jij hieronder doet maar <deze manier is als t goed is wel meer de bedoeling, kijk maar of je er iets mee doet lol
-        }
-    }
-    //bordData array aanmaken, voor gebruik is de eerste waarde het x vak tweede het y vak en derde een waarde van het vakje
-        {
-            //klassen aanroepen voor steentjes tekenen
-            //vgm is dit tzelfde als wat jij hieronder doet maar <deze manier is als t goed is wel meer de bedoeling, kijk maar of je er iets mee doet lol
-        }
-    }
-    //bordData array aanmaken, voor gebruik is de eerste waarde het x vak tweede het y vak en derde een waarde van het vakje
-        {
-            //klassen aanroepen voor steentjes tekenen
-            //vgm is dit tzelfde als wat jij hieronder doet maar <deze manier is als t goed is wel meer de bedoeling, kijk maar of je er iets mee doet lol
-        }
-    }
-    //bordData array aanmaken, voor gebruik is de eerste waarde het x vak tweede het y vak en derde een waarde van het vakje
-    //0 is voor het vakjes x coordinaat, 1 is voor het y coordinaat en 2 is voor de status van het vakje
+    //bordData array aanmaken, eerste waarde = x-coördinaat, tweede waarde = y-coördinaat, derde waarde = status van het vakje
+    //0 is voor de x-coördinaat, 1 is voor de y-coördinaat en 2 is voor de status van het vakje
     bordData = new int[bordDimensie, bordDimensie, 3];
 
-    for (int x = 0; x <= bordDimensie; x += 1) //bordlijnen tekenen en bordData Array x en y cordinaten vakjes geven en de vakjes hun waarde op 0 zetten
+    for (int x = 0; x <= bordDimensie; x++) //bordlijnen tekenen, bordData array x- en y-vakjes geven en de waarde van de vakjes op 0 zetten
     {
         int xPos = (int)(x / (double)(bordDimensie) * bordLengte) + bordX;
         bitgr.DrawLine(penZwart, xPos, bordY, xPos, bordY + bordLengte);
 
         if (x < bordDimensie)
         {
-            for (int y = 0; y < bordDimensie; y += 1)
+            for (int y = 0; y < bordDimensie; y++)
             {
                 bordData[x, y, 2] = 0;
                 bordData[x, y, 0] = xPos;
             }
         }
     }
-    for (int x = 0; x <= bordDimensie; x += 1)
-}
-
-bitgr.FillEllipse(Brushes.Red, bordX, bordX, bordX / 2, bordX / 2); //deze dingen en de stenen zelf maak ik nog wel een keer mooier
-bitgr.FillEllipse(Brushes.Blue, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2); //de technieken verbeteren however mag jij doen als je wil
-
-Point hier = new Point();
-
-void teken (object o, PaintEventArgs pea)
-{
-    Graphics paintgr = pea.Graphics;
-
-    for (int x = 0; x < bordDimensie; x += 1)
+    for (int x = 0; x <= bordDimensie; x++)
     {
-        for (int y = 0; y < bordDimensie; y += 1)
+        int yPos = (int)(x / (double)(bordDimensie) * bordLengte) + bordY;
+        bitgr.DrawLine(penZwart, bordX, yPos, bordX + bordLengte, yPos);
+        if (x < bordDimensie)
         {
-            if (bordData[x, y, 2] == 1)
+            for (int y = 0; y < bordDimensie; y++)
             {
-                paintgr.FillEllipse(Brushes.Red, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
-            for (int y = 0; y < bordDimensie; y += 1)
-        if (t < bordDimensie)
-        {
-            for (int t2 = 0; t2 < bordDimensie; t2++)
-            {
-                bordData[t2, t, 1] = yPos;
+                bordData[y, x, 1] = yPos;
+            }
+        }
+    }
 
-    //beginstenen op het bordt zetten
+    //beginstenen op het bord zetten
     bordData[bordDimensie / 2, bordDimensie / 2, 2] = 1;
     bordData[bordDimensie / 2 - 1, bordDimensie / 2 - 1, 2] = 1;
     bordData[bordDimensie / 2 - 1, bordDimensie / 2, 2] = 2;
     bordData[bordDimensie / 2, bordDimensie / 2 - 1, 2] = 2;
+}
 
-        if (t < bordDimensie)
+Pen penRood = new Pen(Brushes.Red, 10);
+Pen penBlauw = new Pen(Brushes.Blue, 10);
+bitgr.DrawEllipse(penRood, bordX, bordX, bordX / 2, bordX / 2);
+bitgr.DrawEllipse(penBlauw, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2);
+
+void teken(object o, PaintEventArgs pea)
+{
+    Graphics paintgr = pea.Graphics;
+
+    for (int x = 0; x < bordDimensie; x++)
+    {
+        for (int y = 0; y < bordDimensie; y++)
         {
-            for (int t2 = 0; t2 < bordDimensie; t2++)
+            if (bordData[x, y, 2] == 1)
             {
-                bordData[t2, t, 1] = yPos;
+                paintgr.FillEllipse(Brushes.Red, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
             }
             if (bordData[x, y, 2] == 2)
             {
@@ -227,66 +180,98 @@ void teken (object o, PaintEventArgs pea)
         }
     }
 }
-void bordGekliked(object o, MouseEventArgs mea)
-{
-    hier = mea.Location;
 
+void bordGeklikt(object o, MouseEventArgs mea)
+{
+    Point hier = mea.Location;
     int selectedVakNumHorizontaal = 0;
     while (selectedVakNumHorizontaal * bordVakjeLengte < hier.X - bordX)
     {
-        selectedVakNumHorizontaal += 1;
+        selectedVakNumHorizontaal++;
     }
     selectedVakNumHorizontaal -= 1;
     int selectedVakNumVerticaal = 0;
     while (selectedVakNumVerticaal * bordVakjeLengte < hier.Y - bordY)
     {
-        selectedVakNumVerticaal += 1;
+        selectedVakNumVerticaal++;
     }
     selectedVakNumVerticaal -= 1;
-
-    if (selectedVakNumHorizontaal < 0 || selectedVakNumHorizontaal >= bordDimensie) ;
+    if (selectedVakNumHorizontaal < 0 || selectedVakNumHorizontaal >= bordDimensie);
     else
     {
-        if (selectedVakNumVerticaal < 0 || selectedVakNumVerticaal >= bordDimensie) ;
+        if (selectedVakNumVerticaal < 0 || selectedVakNumVerticaal >= bordDimensie);
         else
         {
-            if (beurt % 2 == 1)
+            if (bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] == 0)
             {
-                bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 1;
+                bool links = selectedVakNumHorizontaal - 1 >= 0;
+                bool rechts = selectedVakNumHorizontaal + 1 < bordDimensie;
+                bool boven = selectedVakNumVerticaal - 1 >= 0;
+                bool onder = selectedVakNumVerticaal + 1 < bordDimensie;
+                    if (beurt % 2 == 1 &&
+                    ((rechts && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal, 2] == 2) ||
+                    (rechts && onder && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal + 1, 2] == 2) ||
+                    (rechts && boven && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal - 1, 2] == 2) ||
+                    (links && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal, 2] == 2) ||
+                    (links && onder && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal + 1, 2] == 2) ||
+                    (links && boven && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal - 1, 2] == 2) ||
+                    (onder && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal + 1, 2] == 2) ||
+                    (boven && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal - 1, 2] == 2)))
+                    {
+                        bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 1;
+                        status.ForeColor = Color.DarkBlue;
+                        status.Text = "Blauw aan zet";
+                        intRood++;
+                        aantalRood.Text = $"{intRood}";
+                    }
+                    if (beurt % 2 != 1 &&
+                    ((rechts && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal, 2] == 1) ||
+                    (rechts && onder && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal + 1, 2] == 1) ||
+                    (rechts && boven && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal - 1, 2] == 1) ||
+                    (links && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal, 2] == 1) ||
+                    (links && onder && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal + 1, 2] == 1) ||
+                    (links && boven && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal - 1, 2] == 1) ||
+                    (onder && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal + 1, 2] == 1) ||
+                    (boven && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal - 1, 2] == 1)))
+                    {
+                        bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 2;
+                        status.ForeColor = Color.DarkRed;
+                        status.Text = "Rood aan zet";
+                        intBlauw++;
+                        aantalBlauw.Text = $"{intBlauw}";
+                    }
+                beurt++;
+                bordLabel.Invalidate();
             }
-            else
-            {
-                bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 2;
-            }
-            beurt += 1;
-            afbeelding.Invalidate();
-
         }
     }
-
-}
-
-void klik(object o, EventArgs ea)
-{
-    if (o == nieuwspel)
+    if (intRood + intBlauw == bordDimensie * bordDimensie)
     {
-        scherm.Invalidate(); //idk hoe dit werkt either
-    }
-    if (o == help)
-    {
-        //kleine witte cirkeltjes op beschikbare plekken tekenen
+        if (intRood > intBlauw)
+        {
+            status.ForeColor = Color.DarkRed;
+            status.Text = "Rood heeft gewonnen!";
+        }
+        if (intRood < intBlauw)
+        {
+            status.ForeColor = Color.DarkBlue;
+            status.Text = "Blauw heeft gewonnen!";
+        }
+        else
+        {
+            status.Location = new Point(227, 45);
+            status.ForeColor = Color.Black;
+            status.Text = "Remise";
+        }
         scherm.Invalidate();
     }
-    if (o == bordSelectie) //eh outdated maar uiteindelijk moet je ofc wel echt een andere bordgrootte kunnen krijgen
-    {
-
-    }
 }
 
-afbeelding.MouseClick += bordGekliked;
+bordLabel.MouseClick += bordGeklikt;
+nieuwspel.Click += bordDimensieSelectie;
+//help.Click += helpfunctie; moet nog gemaakt worden
 bordSelectie.SelectedValueChanged += bordDimensieSelectie;
-afbeelding.Paint += teken;
-
+bordLabel.Paint += teken;
 
 bordDimensieSelectie(null, null);
 
