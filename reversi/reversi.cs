@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -78,10 +79,12 @@ int bordX = 100;
 int bordY = 180;
 int bordLengte = 300;
 int bordDimensie = 6;
+bool helpEnabled = true;
+
 int bordVakjeLengte = bordLengte / bordDimensie;
 Pen penZwart = new Pen(Color.Black, 3);
 
-int[,,] bordData = new int[bordDimensie, bordDimensie, 3];
+int[,,] bordData = new int[bordDimensie, bordDimensie, 5];
 void bordDimensieSelectie(object o, EventArgs ea)
 {
     if (bordSelectie.SelectedItem == "4x4")
@@ -119,8 +122,8 @@ void bordDimensieSelectie(object o, EventArgs ea)
     bitgr.FillRectangle(Brushes.WhiteSmoke, bordX, bordY, bordLengte, bordLengte);
 
     //bordData array aanmaken, eerste waarde = x-coördinaat, tweede waarde = y-coördinaat, derde waarde = status van het vakje
-    //0 is voor de x-coördinaat, 1 is voor de y-coördinaat en 2 is voor de status van het vakje
-    bordData = new int[bordDimensie, bordDimensie, 3];
+    //0 is voor de x-coördinaat, 1 is voor de y-coördinaat, 2 is voor de status van het vakje, 3 is voor of er op het vakje geplaatst kan worden door rood en 4 is voor of er op het vakje geplaatst kan worden door blauw
+    bordData = new int[bordDimensie, bordDimensie, 5];
 
     for (int x = 0; x <= bordDimensie; x++) //bordlijnen tekenen, bordData array x- en y-vakjes geven en de waarde van de vakjes op 0 zetten
     {
@@ -161,9 +164,80 @@ Pen penBlauw = new Pen(Brushes.Blue, 10);
 bitgr.DrawEllipse(penRood, bordX, bordX, bordX / 2, bordX / 2);
 bitgr.DrawEllipse(penBlauw, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2);
 
+void kanPlaatsenOp()
+{
+
+    for (int x = 0; x < bordDimensie; x++)
+    {
+        for (int y = 0; y < bordDimensie; y++)
+        {
+            bordData[x, y, 3] = 0;
+            bordData[x, y, 4] = 0;
+            if (bordData[x,y,2]==0)
+            {
+                for (int xSurounding = -1; xSurounding <= 1; xSurounding++)
+                {
+                    for (int ySurounding = -1; ySurounding <= 1; ySurounding++)
+                    {
+                        if (xSurounding != 0 || ySurounding != 0)
+                        {
+                            //de plaatsbare tiles voor rood in de bordData array zetten
+                            try
+                            {
+                                if (bordData[x + xSurounding, y + ySurounding, 2] == 2)
+                                {
+                                    int xOfset = xSurounding;
+                                    int yOfset = ySurounding;
+
+                                    while (bordData[x + xOfset, y + yOfset, 2] == 2)
+                                    {
+                                        xOfset += xSurounding;
+                                        yOfset += ySurounding;
+                                        if (bordData[x + xOfset, y + yOfset, 2] == 1)
+                                        {
+                                            bordData[x, y, 3] = 1;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            catch { }
+                            //de plaatsbare tiles voor blauw in de bordData array zetten
+                            try
+                            {
+                                if (bordData[x + xSurounding, y + ySurounding, 2] == 1)
+                                {
+                                    int xOfset = xSurounding;
+                                    int yOfset = ySurounding;
+
+                                    while (bordData[x + xOfset, y + yOfset, 2] == 1)
+                                    {
+                                        xOfset += xSurounding;
+                                        yOfset += ySurounding;
+                                        if (bordData[x + xOfset, y + yOfset, 2] == 2)
+                                        {
+                                            bordData[x, y, 4] = 1;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            catch { }
+
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+}
+
 void teken(object o, PaintEventArgs pea)
 {
     Graphics paintgr = pea.Graphics;
+    kanPlaatsenOp();
 
     for (int x = 0; x < bordDimensie; x++)
     {
@@ -176,6 +250,17 @@ void teken(object o, PaintEventArgs pea)
             if (bordData[x, y, 2] == 2)
             {
                 paintgr.FillEllipse(Brushes.Blue, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+            }
+            if (helpEnabled == true)
+            {
+                if (beurt % 2 == 0 && bordData[x, y, 4] == 1)
+                {
+                    paintgr.FillEllipse(Brushes.Black, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                }
+                if (beurt % 2 == 1 && bordData[x, y, 3] == 1)
+                {
+                    paintgr.FillEllipse(Brushes.DarkGray, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                }
             }
         }
     }
@@ -208,40 +293,26 @@ void bordGeklikt(object o, MouseEventArgs mea)
                 bool rechts = selectedVakNumHorizontaal + 1 < bordDimensie;
                 bool boven = selectedVakNumVerticaal - 1 >= 0;
                 bool onder = selectedVakNumVerticaal + 1 < bordDimensie;
-                    if (beurt % 2 == 1 &&
-                    ((rechts && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal, 2] == 2) ||
-                    (rechts && onder && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal + 1, 2] == 2) ||
-                    (rechts && boven && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal - 1, 2] == 2) ||
-                    (links && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal, 2] == 2) ||
-                    (links && onder && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal + 1, 2] == 2) ||
-                    (links && boven && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal - 1, 2] == 2) ||
-                    (onder && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal + 1, 2] == 2) ||
-                    (boven && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal - 1, 2] == 2)))
-                    {
-                        bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 1;
-                        status.ForeColor = Color.DarkBlue;
-                        status.Text = "Blauw aan zet";
-                        intRood++;
-                        aantalRood.Text = $"{intRood}";
-                    }
-                    if (beurt % 2 != 1 &&
-                    ((rechts && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal, 2] == 1) ||
-                    (rechts && onder && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal + 1, 2] == 1) ||
-                    (rechts && boven && bordData[selectedVakNumHorizontaal + 1, selectedVakNumVerticaal - 1, 2] == 1) ||
-                    (links && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal, 2] == 1) ||
-                    (links && onder && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal + 1, 2] == 1) ||
-                    (links && boven && bordData[selectedVakNumHorizontaal - 1, selectedVakNumVerticaal - 1, 2] == 1) ||
-                    (onder && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal + 1, 2] == 1) ||
-                    (boven && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal - 1, 2] == 1)))
-                    {
-                        bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 2;
-                        status.ForeColor = Color.DarkRed;
-                        status.Text = "Rood aan zet";
-                        intBlauw++;
-                        aantalBlauw.Text = $"{intBlauw}";
-                    }
-                beurt++;
-                bordLabel.Invalidate();
+                if (beurt % 2 == 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 3] == 1)
+                {
+                    bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 1;
+                    status.ForeColor = Color.DarkBlue;
+                    status.Text = "Blauw aan zet";
+                    intRood++;
+                    aantalRood.Text = $"{intRood}";
+                    beurt++;
+                    bordLabel.Invalidate();
+                }
+                if (beurt % 2 != 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 4] == 1)
+                {
+                    bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 2;
+                    status.ForeColor = Color.DarkRed;
+                    status.Text = "Rood aan zet";
+                    intBlauw++;
+                    aantalBlauw.Text = $"{intBlauw}";
+                    beurt++;
+                    bordLabel.Invalidate();
+                }
             }
         }
     }
