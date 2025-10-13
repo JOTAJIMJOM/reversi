@@ -551,9 +551,9 @@ void kleurVeranderen1(object o, EventArgs ea)
     if (beurt % 2 == 1)
     {
         status.ForeColor = donkereKleur1;
-        bordLabel.Invalidate();
-        scherm.Invalidate();
     }
+    bordLabel.Invalidate();
+    scherm.Invalidate();
 }
 void kleurVeranderen2(object o, EventArgs ea)
 {
@@ -588,9 +588,9 @@ void kleurVeranderen2(object o, EventArgs ea)
     if (beurt % 2 != 1)
     {
         status.ForeColor = donkereKleur2;
-        bordLabel.Invalidate();
-        scherm.Invalidate();
     }
+    bordLabel.Invalidate();
+    scherm.Invalidate();
 }
 
 bordLabel.MouseClick += bordGeklikt;
