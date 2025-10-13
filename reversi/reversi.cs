@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
@@ -233,6 +234,85 @@ void kanPlaatsenOp()
     }
 
 }
+void updateOmliggendeStennen(int x, int y,int beurt)
+{
+    for (int xSurounding = -1; xSurounding <= 1; xSurounding++)
+    {
+        for (int ySurounding = -1; ySurounding <= 1; ySurounding++)
+        {
+            if (xSurounding != 0 || ySurounding != 0)
+            {
+                //de omliggende tiles voor rood updaten in borddata array
+                if (beurt % 2 == 1)
+                {
+                    try
+                    {
+                        if (bordData[x + xSurounding, y + ySurounding, 2] == 2)
+                        {
+                            int xOfset = xSurounding;
+                            int yOfset = ySurounding;
+                            while (bordData[x + xOfset, y + yOfset, 2] == 2)
+                            {
+                                xOfset += xSurounding;
+                                yOfset += ySurounding;
+                                if (bordData[x + xOfset, y + yOfset, 2] == 1)
+                                {
+                                    xOfset = xSurounding;
+                                    yOfset = ySurounding;
+                                    while (bordData[x + xOfset, y + yOfset, 2] == 2)
+                                    {
+                                        bordData[x + xOfset, y + yOfset, 2] = 1;
+                                        xOfset += xSurounding;
+                                        yOfset += ySurounding;
+                                        if (bordData[x + xOfset, y + yOfset, 2] == 1)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
+                else //de omliggende tiles voor blauw updaten in borddata array
+                {
+                    try
+                    {
+                        if (bordData[x + xSurounding, y + ySurounding, 2] == 1)
+                        {
+                            int xOfset = xSurounding;
+                            int yOfset = ySurounding;
+
+                            while (bordData[x + xOfset, y + yOfset, 2] == 1)
+                            {
+                                xOfset += xSurounding;
+                                yOfset += ySurounding;
+                                if (bordData[x + xOfset, y + yOfset, 2] == 2)
+                                {
+                                    xOfset = xSurounding;
+                                    yOfset = ySurounding;
+
+                                    while (bordData[x + xOfset, y + yOfset, 2] == 1)
+                                    {
+                                        bordData[x + xOfset, y + yOfset, 2] = 2;
+                                        xOfset += xSurounding;
+                                        yOfset += ySurounding;
+                                        if (bordData[x + xOfset, y + yOfset, 2] == 2)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
+            }
+        }
+    }
+}
 
 void teken(object o, PaintEventArgs pea)
 {
@@ -289,27 +369,35 @@ void bordGeklikt(object o, MouseEventArgs mea)
         {
             if (bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] == 0)
             {
-                bool links = selectedVakNumHorizontaal - 1 >= 0;
-                bool rechts = selectedVakNumHorizontaal + 1 < bordDimensie;
-                bool boven = selectedVakNumVerticaal - 1 >= 0;
-                bool onder = selectedVakNumVerticaal + 1 < bordDimensie;
                 if (beurt % 2 == 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 3] == 1)
                 {
+                    //upate tile colors
                     bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 1;
-                    status.ForeColor = Color.DarkBlue;
-                    status.Text = "Blauw aan zet";
+                    updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
+
+                    //update score
                     intRood++;
                     aantalRood.Text = $"{intRood}";
+
+                    //update beurt
+                    status.ForeColor = Color.DarkBlue;
+                    status.Text = "Blauw aan zet";
                     beurt++;
                     bordLabel.Invalidate();
                 }
                 if (beurt % 2 != 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 4] == 1)
                 {
+                    //upate tile colors
                     bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 2;
-                    status.ForeColor = Color.DarkRed;
-                    status.Text = "Rood aan zet";
+                    updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
+
+                    //update score
                     intBlauw++;
                     aantalBlauw.Text = $"{intBlauw}";
+
+                    //update beurt
+                    status.ForeColor = Color.DarkRed;
+                    status.Text = "Rood aan zet";
                     beurt++;
                     bordLabel.Invalidate();
                 }
