@@ -1,60 +1,104 @@
 using System;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
+int beurt = 1;
+int scoreRood = 2;
+int scoreBlauw = 2;
+
+int bordX = 100;
+int bordY = 180;
+int bordLengte = 300;
+int bordDimensie = 6;
+bool helpEnabled = false;
+bool roodHeeftZet = false;
+bool blauwHeeftZet = false;
+bool spelBezig = true;
+
+int bordVakjeLengte = bordLengte / bordDimensie;
+Pen penZwart = new Pen(Color.Black, 3);
+
+int[,,] bordData = new int[bordDimensie, bordDimensie, 5];
+
 Form scherm = new Form();
-scherm.Text = "reversi";
-scherm.BackColor = Color.Moccasin;
+scherm.Text = "Reversi";
+scherm.BackColor = Color.FromArgb(100, 125, 65);
 scherm.ClientSize = new Size(500, 500);
 
-Font font = new Font("Times New Roman", 11, FontStyle.Bold);
+Font font = new Font("Times New Roman", 14, FontStyle.Bold);
 Font stenenFont = new Font("Times New Roman", 12, FontStyle.Bold);
 Size buttonSize = new Size(100, 30);
+Size miniButtonSize = new Size(30, 30);
 Size textSize = new Size(22, 20);
+
+Button kleurKnop1 = new Button();
+kleurKnop1.Location = new Point(40, 110);
+kleurKnop1.Size = miniButtonSize;
+scherm.Controls.Add(kleurKnop1);
+
+Button kleurKnop2 = new Button();
+kleurKnop2.Location = new Point(430, 110);
+kleurKnop2.Size = miniButtonSize;
+scherm.Controls.Add(kleurKnop2);
+
+Color[] kleuren = new[]
+{
+    Color.FromArgb(255, 0, 0), Color.FromArgb(255, 255, 0), Color.FromArgb(0, 255, 0), Color.FromArgb(0, 255, 255), Color.FromArgb(0, 0, 255), Color.FromArgb(255, 0, 255)
+};
+int press1 = 0;
+int press2 = 0;
+
+Color rgbKleur1 = kleuren[0];
+Color rgbKleur2 = kleuren[4];
+kleurKnop1.BackColor = rgbKleur1;
+kleurKnop2.BackColor = rgbKleur2;
+
+Color lichteKleur1 = ControlPaint.LightLight(rgbKleur1);
+Color donkereKleur1 = ControlPaint.Dark(rgbKleur1);
+
+Color lichteKleur2 = ControlPaint.LightLight(rgbKleur2);
+Color donkereKleur2 = ControlPaint.Dark(rgbKleur2);
 
 Button nieuwspel = new Button();
 nieuwspel.Location = new Point(75, 40);
 nieuwspel.Size = buttonSize;
 scherm.Controls.Add(nieuwspel);
-nieuwspel.BackColor = Color.FromArgb(255, 180, 180);
-nieuwspel.Font = font;
+nieuwspel.BackColor = lichteKleur1;
+nieuwspel.Font = stenenFont;
 nieuwspel.Text = "Nieuw spel";
 
 Button help = new Button();
 help.Location = new Point(325, 40);
 help.Size = buttonSize;
 scherm.Controls.Add(help);
-help.BackColor = Color.FromArgb(180, 180, 255);
-help.Font = font;
+help.BackColor = lichteKleur2;
+help.Font = stenenFont;
 help.Text = "Help";
-
-int beurt = 1;
-int scoreRood = 2;
-int scoreBlauw = 2;
 
 Label aantalRood = new Label();
 aantalRood.Location = new Point(115, 115);
 aantalRood.Size = textSize;
 aantalRood.Font = stenenFont;
+aantalRood.TextAlign = ContentAlignment.MiddleCenter;
 scherm.Controls.Add(aantalRood);
-aantalRood.ForeColor = Color.Red;
+aantalRood.ForeColor = rgbKleur1;
 aantalRood.Text = $"{scoreRood}";
 
 Label aantalBlauw = new Label();
-aantalBlauw.Location = new Point(365, 115);
+aantalBlauw.Location = new Point(364, 115);
 aantalBlauw.Size = textSize;
 aantalBlauw.Font = stenenFont;
 scherm.Controls.Add(aantalBlauw);
-aantalBlauw.ForeColor = Color.Blue;
+aantalBlauw.TextAlign = ContentAlignment.MiddleCenter;
+aantalBlauw.ForeColor = rgbKleur2;
 aantalBlauw.Text = $"{scoreBlauw}";
 
 Label status = new Label();
-status.Location = new Point(203, 45);
+status.Location = new Point(200, 45);
 status.Size = new Size(100, 60);
 status.Font = font;
 scherm.Controls.Add(status);
+status.TextAlign = ContentAlignment.MiddleCenter;
 
 ComboBox bordSelectie = new ComboBox();
 bordSelectie.Location = new Point(200, 120);
@@ -77,20 +121,7 @@ bordLabel.Size = new Size(500, 500);
 bordLabel.Image = bitmapBord;
 Graphics bitgr = Graphics.FromImage(bitmapBord);
 
-int bordX = 100;
-int bordY = 180;
-int bordLengte = 300;
-int bordDimensie = 6;
-bool helpEnabled = false;
-bool roodHeeftZet = false;
-bool blauwHeeftZet = false;
-bool spelBezig = true;
-
-int bordVakjeLengte = bordLengte / bordDimensie;
-Pen penZwart = new Pen(Color.Black, 3);
-
-int[,,] bordData = new int[bordDimensie, bordDimensie, 5];
-void niewSpel(object o, EventArgs ea)
+void nieuwSpel(object o, EventArgs ea)
 {
     if (bordSelectie.SelectedItem == "4x4")
     {
@@ -113,9 +144,8 @@ void niewSpel(object o, EventArgs ea)
         penZwart.Width = 2;
     }
     beurt = 1;
-    status.Location = new Point(203, 45);
-    status.ForeColor = Color.DarkRed;
-    status.Text = "Rood aan zet";
+    status.ForeColor = donkereKleur1;
+    status.Text = "Speler 1 aan zet";
     scoreRood = 2;
     scoreBlauw = 2;
     aantalRood.Text = $"{scoreRood}";
@@ -165,10 +195,14 @@ void niewSpel(object o, EventArgs ea)
     bordData[bordDimensie / 2, bordDimensie / 2 - 1, 2] = 2;
 }
 
-Pen penRood = new Pen(Brushes.Red, 10);
-Pen penBlauw = new Pen(Brushes.Blue, 10);
-bitgr.DrawEllipse(penRood, bordX, bordX, bordX / 2, bordX / 2);
-bitgr.DrawEllipse(penBlauw, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2);
+Brush rgbBrush1 = new SolidBrush(rgbKleur1);
+Brush rgbBrush2 = new SolidBrush(rgbKleur2);
+Brush rgbBrushLight1 = new SolidBrush(lichteKleur1);
+Brush rgbBrushLight2 = new SolidBrush(lichteKleur2);
+Brush rgbBrushDark1 = new SolidBrush(donkereKleur1);
+Brush rgbBrushDark2 = new SolidBrush(donkereKleur2);
+Pen penRood = new Pen(rgbBrush1, 10);
+Pen penBlauw = new Pen(rgbBrush2, 10);
 
 void kanPlaatsenOp()
 {
@@ -182,25 +216,25 @@ void kanPlaatsenOp()
             bordData[x, y, 4] = 0;
             if (bordData[x,y,2]==0)
             {
-                for (int xSurounding = -1; xSurounding <= 1; xSurounding++)
+                for (int xSurrounding = -1; xSurrounding <= 1; xSurrounding++)
                 {
-                    for (int ySurounding = -1; ySurounding <= 1; ySurounding++)
+                    for (int ySurrounding = -1; ySurrounding <= 1; ySurrounding++)
                     {
-                        if (xSurounding != 0 || ySurounding != 0)
+                        if (xSurrounding != 0 || ySurrounding != 0)
                         {
                             //de plaatsbare tiles voor rood in de bordData array zetten
                             try
                             {
-                                if (bordData[x + xSurounding, y + ySurounding, 2] == 2)
+                                if (bordData[x + xSurrounding, y + ySurrounding, 2] == 2)
                                 {
-                                    int xOfset = xSurounding;
-                                    int yOfset = ySurounding;
+                                    int xOffset = xSurrounding;
+                                    int yOffset = ySurrounding;
 
-                                    while (bordData[x + xOfset, y + yOfset, 2] == 2)
+                                    while (bordData[x + xOffset, y + yOffset, 2] == 2)
                                     {
-                                        xOfset += xSurounding;
-                                        yOfset += ySurounding;
-                                        if (bordData[x + xOfset, y + yOfset, 2] == 1)
+                                        xOffset += xSurrounding;
+                                        yOffset += ySurrounding;
+                                        if (bordData[x + xOffset, y + yOffset, 2] == 1)
                                         {
                                             bordData[x, y, 3] = 1;
                                             roodHeeftZet = true;
@@ -213,16 +247,16 @@ void kanPlaatsenOp()
                             //de plaatsbare tiles voor blauw in de bordData array zetten
                             try
                             {
-                                if (bordData[x + xSurounding, y + ySurounding, 2] == 1)
+                                if (bordData[x + xSurrounding, y + ySurrounding, 2] == 1)
                                 {
-                                    int xOfset = xSurounding;
-                                    int yOfset = ySurounding;
+                                    int xOffset = xSurrounding;
+                                    int yOffset = ySurrounding;
 
-                                    while (bordData[x + xOfset, y + yOfset, 2] == 1)
+                                    while (bordData[x + xOffset, y + yOffset, 2] == 1)
                                     {
-                                        xOfset += xSurounding;
-                                        yOfset += ySurounding;
-                                        if (bordData[x + xOfset, y + yOfset, 2] == 2)
+                                        xOffset += xSurrounding;
+                                        yOffset += ySurrounding;
+                                        if (bordData[x + xOffset, y + yOffset, 2] == 2)
                                         {
                                             bordData[x, y, 4] = 1;
                                             blauwHeeftZet = true;
@@ -245,35 +279,35 @@ void kanPlaatsenOp()
 
 void updateOmliggendeStennen(int x, int y,int beurt)
 {
-    for (int xSurounding = -1; xSurounding <= 1; xSurounding++)
+    for (int xSurrounding = -1; xSurrounding <= 1; xSurrounding++)
     {
-        for (int ySurounding = -1; ySurounding <= 1; ySurounding++)
+        for (int ySurrounding = -1; ySurrounding <= 1; ySurrounding++)
         {
-            if (xSurounding != 0 || ySurounding != 0)
+            if (xSurrounding != 0 || ySurrounding != 0)
             {
                 //de omliggende tiles voor rood updaten in borddata array
                 if (beurt % 2 == 1)
                 {
                     try
                     {
-                        if (bordData[x + xSurounding, y + ySurounding, 2] == 2)
+                        if (bordData[x + xSurrounding, y + ySurrounding, 2] == 2)
                         {
-                            int xOfset = xSurounding;
-                            int yOfset = ySurounding;
-                            while (bordData[x + xOfset, y + yOfset, 2] == 2)
+                            int xOffset = xSurrounding;
+                            int yOffset = ySurrounding;
+                            while (bordData[x + xOffset, y + yOffset, 2] == 2)
                             {
-                                xOfset += xSurounding;
-                                yOfset += ySurounding;
-                                if (bordData[x + xOfset, y + yOfset, 2] == 1)
+                                xOffset += xSurrounding;
+                                yOffset += ySurrounding;
+                                if (bordData[x + xOffset, y + yOffset, 2] == 1)
                                 {
-                                    xOfset = xSurounding;
-                                    yOfset = ySurounding;
-                                    while (bordData[x + xOfset, y + yOfset, 2] == 2)
+                                    xOffset = xSurrounding;
+                                    yOffset = ySurrounding;
+                                    while (bordData[x + xOffset, y + yOffset, 2] == 2)
                                     {
-                                        bordData[x + xOfset, y + yOfset, 2] = 1;
-                                        xOfset += xSurounding;
-                                        yOfset += ySurounding;
-                                        if (bordData[x + xOfset, y + yOfset, 2] == 1)
+                                        bordData[x + xOffset, y + yOffset, 2] = 1;
+                                        xOffset += xSurrounding;
+                                        yOffset += ySurrounding;
+                                        if (bordData[x + xOffset, y + yOffset, 2] == 1)
                                         {
                                             break;
                                         }
@@ -288,26 +322,26 @@ void updateOmliggendeStennen(int x, int y,int beurt)
                 {
                     try
                     {
-                        if (bordData[x + xSurounding, y + ySurounding, 2] == 1)
+                        if (bordData[x + xSurrounding, y + ySurrounding, 2] == 1)
                         {
-                            int xOfset = xSurounding;
-                            int yOfset = ySurounding;
+                            int xOffset = xSurrounding;
+                            int yOffset = ySurrounding;
 
-                            while (bordData[x + xOfset, y + yOfset, 2] == 1)
+                            while (bordData[x + xOffset, y + yOffset, 2] == 1)
                             {
-                                xOfset += xSurounding;
-                                yOfset += ySurounding;
-                                if (bordData[x + xOfset, y + yOfset, 2] == 2)
+                                xOffset += xSurrounding;
+                                yOffset += ySurrounding;
+                                if (bordData[x + xOffset, y + yOffset, 2] == 2)
                                 {
-                                    xOfset = xSurounding;
-                                    yOfset = ySurounding;
+                                    xOffset = xSurrounding;
+                                    yOffset = ySurrounding;
 
-                                    while (bordData[x + xOfset, y + yOfset, 2] == 1)
+                                    while (bordData[x + xOffset, y + yOffset, 2] == 1)
                                     {
-                                        bordData[x + xOfset, y + yOfset, 2] = 2;
-                                        xOfset += xSurounding;
-                                        yOfset += ySurounding;
-                                        if (bordData[x + xOfset, y + yOfset, 2] == 2)
+                                        bordData[x + xOffset, y + yOffset, 2] = 2;
+                                        xOffset += xSurrounding;
+                                        yOffset += ySurrounding;
+                                        if (bordData[x + xOffset, y + yOffset, 2] == 2)
                                         {
                                             break;
                                         }
@@ -328,16 +362,16 @@ void eindeSpel()
     spelBezig = false;
     if (scoreRood > scoreBlauw)
     {
-        status.ForeColor = Color.DarkRed;
-        status.Text = "Rood heeft gewonnen!";
+        status.ForeColor = donkereKleur1;
+        status.Text = "Speler 1 heeft gewonnen!";
         bordLabel.Invalidate();
     }
     else
     {
     if (scoreRood < scoreBlauw)
         {
-            status.ForeColor = Color.DarkBlue;
-            status.Text = "Blauw heeft gewonnen!";
+            status.ForeColor = donkereKleur2;
+            status.Text = "Speler 2 heeft gewonnen!";
             bordLabel.Invalidate();
         }
         else
@@ -360,8 +394,8 @@ void teken(object o, PaintEventArgs pea)
     {
         if (blauwHeeftZet == false)
         {
-            status.ForeColor = Color.DarkRed;
-            status.Text = "Rood aan zet";
+            status.ForeColor = donkereKleur1;
+            status.Text = "Speler 1 aan zet";
             beurt++;
             bordLabel.Invalidate();
         }
@@ -370,8 +404,8 @@ void teken(object o, PaintEventArgs pea)
     {
         if (roodHeeftZet == false)
         {
-            status.ForeColor = Color.DarkBlue;
-            status.Text = "Blauw aan zet";
+            status.ForeColor = donkereKleur2;
+            status.Text = "Speler 2 aan zet";
             beurt++;
             bordLabel.Invalidate();
         }
@@ -384,26 +418,28 @@ void teken(object o, PaintEventArgs pea)
             if (bordData[x, y, 2] == 1)
             {
                 scoreRood++;
-                paintgr.FillEllipse(Brushes.Red, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                paintgr.FillEllipse(rgbBrush1, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                paintgr.FillEllipse(rgbBrushDark1, bordData[x, y, 0] + bordVakjeLengte / 6, bordData[x, y, 1] + bordVakjeLengte / 6, bordVakjeLengte / 7 * 5, bordVakjeLengte / 7 * 5);
             }
             if (bordData[x, y, 2] == 2)
             {
                 scoreBlauw++;
-                paintgr.FillEllipse(Brushes.Blue, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                paintgr.FillEllipse(rgbBrush2, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                paintgr.FillEllipse(rgbBrushDark2, bordData[x, y, 0] + bordVakjeLengte / 6, bordData[x, y, 1] + bordVakjeLengte / 6, bordVakjeLengte / 7 * 5, bordVakjeLengte / 7 * 5);
             }
 
             if (beurt % 2 == 0 && bordData[x, y, 4] == 1)
             {
                 if (helpEnabled == true)
                 {
-                    paintgr.FillEllipse(Brushes.LightBlue, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                    paintgr.FillEllipse(rgbBrushLight2, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
                 }
             }
             if (beurt % 2 == 1 && bordData[x, y, 3] == 1)
             {
                 if (helpEnabled == true)
                 { 
-                    paintgr.FillEllipse(Brushes.LightSalmon, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                    paintgr.FillEllipse(rgbBrushLight1, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
                 }
             }
         }
@@ -411,6 +447,8 @@ void teken(object o, PaintEventArgs pea)
 
     aantalRood.Text = $"{scoreRood}";
     aantalBlauw.Text = $"{scoreBlauw}";
+    paintgr.DrawEllipse(penRood, bordX, bordX, bordX / 2, bordX / 2);
+    paintgr.DrawEllipse(penBlauw, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2);
 
     if (roodHeeftZet == false && blauwHeeftZet == false)
     {
@@ -452,8 +490,8 @@ void bordGeklikt(object o, MouseEventArgs mea)
                         updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
 
                         //update beurt
-                        status.ForeColor = Color.DarkBlue;
-                        status.Text = "Blauw aan zet";
+                        status.ForeColor = donkereKleur2;
+                        status.Text = "Speler 2 aan zet";
                         beurt++;
                         bordLabel.Invalidate();
                     }
@@ -464,8 +502,8 @@ void bordGeklikt(object o, MouseEventArgs mea)
                         updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
 
                         //update beurt
-                        status.ForeColor = Color.DarkRed;
-                        status.Text = "Rood aan zet";
+                        status.ForeColor = donkereKleur1;
+                        status.Text = "Speler 1 aan zet";
                         beurt++;
                         bordLabel.Invalidate();
                     }
@@ -481,12 +519,87 @@ void helpFunctie(object o, EventArgs ea)
     bordLabel.Invalidate();
 }
 
+void kleurVeranderen1(object o, EventArgs ea)
+{
+    press1++;
+    if (press1 > 5)
+    {
+        press1 = 0;
+    }
+    rgbKleur1 = kleuren[press1];
+    if (rgbKleur1 == rgbKleur2)
+    {
+        press1++;
+        if (press1 > 5)
+        {
+            press1 = 0;
+        }
+        rgbKleur1 = kleuren[press1];
+    }
+    lichteKleur1 = ControlPaint.LightLight(rgbKleur1);
+    donkereKleur1 = ControlPaint.Dark(rgbKleur1);
+
+    rgbBrush1 = new SolidBrush(rgbKleur1);
+    rgbBrushLight1 = new SolidBrush(lichteKleur1);
+    rgbBrushDark1 = new SolidBrush(donkereKleur1);
+    penRood = new Pen(rgbBrush1, 10);
+
+    kleurKnop1.BackColor = rgbKleur1;
+    aantalRood.ForeColor = rgbKleur1;
+    nieuwspel.BackColor = lichteKleur1;
+
+    if (beurt % 2 == 1)
+    {
+        status.ForeColor = donkereKleur1;
+        bordLabel.Invalidate();
+        scherm.Invalidate();
+    }
+}
+void kleurVeranderen2(object o, EventArgs ea)
+{
+    press2++;
+    if (press2 > 5)
+    {
+        press2 = 0;
+    }
+    rgbKleur2 = kleuren[press2];
+
+    if (rgbKleur2 == rgbKleur1)
+    {
+        press2++;
+        if (press2 > 5)
+        {
+            press2 = 0;
+        }
+        rgbKleur2 = kleuren[press2];
+    }
+    lichteKleur2 = ControlPaint.LightLight(rgbKleur2);
+    donkereKleur2 = ControlPaint.Dark(rgbKleur2);
+
+    rgbBrush2 = new SolidBrush(rgbKleur2);
+    rgbBrushLight2 = new SolidBrush(lichteKleur2);
+    rgbBrushDark2 = new SolidBrush(donkereKleur2);
+    penBlauw = new Pen(rgbBrush2, 10);
+
+    kleurKnop2.BackColor = rgbKleur2;
+    aantalBlauw.ForeColor = rgbKleur2;
+    help.BackColor = lichteKleur2;
+
+    if (beurt % 2 != 1)
+    {
+        status.ForeColor = donkereKleur2;
+        bordLabel.Invalidate();
+        scherm.Invalidate();
+    }
+}
 
 bordLabel.MouseClick += bordGeklikt;
-nieuwspel.Click += niewSpel;
+nieuwspel.Click += nieuwSpel;
 help.Click += helpFunctie;
+kleurKnop1.Click += kleurVeranderen1;
+kleurKnop2.Click += kleurVeranderen2;
 bordLabel.Paint += teken;
 
-niewSpel(null, null);
+nieuwSpel(null, null);
 
 Application.Run(scherm);
