@@ -31,8 +31,8 @@ help.Font = font;
 help.Text = "Help";
 
 int beurt = 1;
-int intRood = 2;
-int intBlauw = 2;
+int scoreRood = 2;
+int scoreBlauw = 2;
 
 Label aantalRood = new Label();
 aantalRood.Location = new Point(115, 115);
@@ -40,7 +40,7 @@ aantalRood.Size = textSize;
 aantalRood.Font = stenenFont;
 scherm.Controls.Add(aantalRood);
 aantalRood.ForeColor = Color.Red;
-aantalRood.Text = $"{intRood}";
+aantalRood.Text = $"{scoreRood}";
 
 Label aantalBlauw = new Label();
 aantalBlauw.Location = new Point(365, 115);
@@ -48,10 +48,11 @@ aantalBlauw.Size = textSize;
 aantalBlauw.Font = stenenFont;
 scherm.Controls.Add(aantalBlauw);
 aantalBlauw.ForeColor = Color.Blue;
-aantalBlauw.Text = $"{intBlauw}";
+aantalBlauw.Text = $"{scoreBlauw}";
 
 Label status = new Label();
 status.Location = new Point(203, 45);
+status.Size = new Size(100, 60);
 status.Font = font;
 scherm.Controls.Add(status);
 
@@ -80,13 +81,16 @@ int bordX = 100;
 int bordY = 180;
 int bordLengte = 300;
 int bordDimensie = 6;
-bool helpEnabled = true;
+bool helpEnabled = false;
+bool roodHeeftZet = false;
+bool blauwHeeftZet = false;
+bool spelBezig = true;
 
 int bordVakjeLengte = bordLengte / bordDimensie;
 Pen penZwart = new Pen(Color.Black, 3);
 
 int[,,] bordData = new int[bordDimensie, bordDimensie, 5];
-void bordDimensieSelectie(object o, EventArgs ea)
+void niewSpel(object o, EventArgs ea)
 {
     if (bordSelectie.SelectedItem == "4x4")
     {
@@ -112,11 +116,12 @@ void bordDimensieSelectie(object o, EventArgs ea)
     status.Location = new Point(203, 45);
     status.ForeColor = Color.DarkRed;
     status.Text = "Rood aan zet";
-    intRood = 2;
-    intBlauw = 2;
-    aantalRood.Text = $"{intRood}";
-    aantalBlauw.Text = $"{intBlauw}";
+    scoreRood = 2;
+    scoreBlauw = 2;
+    aantalRood.Text = $"{scoreRood}";
+    aantalBlauw.Text = $"{scoreBlauw}";
     bordLabel.Invalidate();
+    spelBezig = true;
 
     bordVakjeLengte = bordLengte / bordDimensie;
 
@@ -167,7 +172,8 @@ bitgr.DrawEllipse(penBlauw, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2);
 
 void kanPlaatsenOp()
 {
-
+    blauwHeeftZet = false;
+    roodHeeftZet = false;
     for (int x = 0; x < bordDimensie; x++)
     {
         for (int y = 0; y < bordDimensie; y++)
@@ -197,6 +203,7 @@ void kanPlaatsenOp()
                                         if (bordData[x + xOfset, y + yOfset, 2] == 1)
                                         {
                                             bordData[x, y, 3] = 1;
+                                            roodHeeftZet = true;
                                             break;
                                         }
                                     }
@@ -218,6 +225,7 @@ void kanPlaatsenOp()
                                         if (bordData[x + xOfset, y + yOfset, 2] == 2)
                                         {
                                             bordData[x, y, 4] = 1;
+                                            blauwHeeftZet = true;
                                             break;
                                         }
                                     }
@@ -234,6 +242,7 @@ void kanPlaatsenOp()
     }
 
 }
+
 void updateOmliggendeStennen(int x, int y,int beurt)
 {
     for (int xSurounding = -1; xSurounding <= 1; xSurounding++)
@@ -314,10 +323,59 @@ void updateOmliggendeStennen(int x, int y,int beurt)
     }
 }
 
+void eindeSpel()
+{
+    spelBezig = false;
+    if (scoreRood > scoreBlauw)
+    {
+        status.ForeColor = Color.DarkRed;
+        status.Text = "Rood heeft gewonnen!";
+        bordLabel.Invalidate();
+    }
+    else
+    {
+    if (scoreRood < scoreBlauw)
+        {
+            status.ForeColor = Color.DarkBlue;
+            status.Text = "Blauw heeft gewonnen!";
+            bordLabel.Invalidate();
+        }
+        else
+        {
+            status.ForeColor = Color.Black;
+            status.Text = "Remise";
+            bordLabel.Invalidate();
+        }
+    }
+}
+
 void teken(object o, PaintEventArgs pea)
 {
     Graphics paintgr = pea.Graphics;
     kanPlaatsenOp();
+    scoreRood = 0;
+    scoreBlauw = 0;
+
+    if (beurt % 2 == 0)
+    {
+        if (blauwHeeftZet == false)
+        {
+            status.ForeColor = Color.DarkRed;
+            status.Text = "Rood aan zet";
+            beurt++;
+            bordLabel.Invalidate();
+        }
+    }
+    if (beurt % 2 == 1)
+    {
+        if (roodHeeftZet == false)
+        {
+            status.ForeColor = Color.DarkBlue;
+            status.Text = "Blauw aan zet";
+            beurt++;
+            bordLabel.Invalidate();
+        }
+    }
 
     for (int x = 0; x < bordDimensie; x++)
     {
@@ -325,113 +383,110 @@ void teken(object o, PaintEventArgs pea)
         {
             if (bordData[x, y, 2] == 1)
             {
+                scoreRood++;
                 paintgr.FillEllipse(Brushes.Red, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
             }
             if (bordData[x, y, 2] == 2)
             {
+                scoreBlauw++;
                 paintgr.FillEllipse(Brushes.Blue, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
             }
-            if (helpEnabled == true)
+
+            if (beurt % 2 == 0 && bordData[x, y, 4] == 1)
             {
-                if (beurt % 2 == 0 && bordData[x, y, 4] == 1)
+                if (helpEnabled == true)
                 {
-                    paintgr.FillEllipse(Brushes.Black, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                    paintgr.FillEllipse(Brushes.LightBlue, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
                 }
-                if (beurt % 2 == 1 && bordData[x, y, 3] == 1)
-                {
-                    paintgr.FillEllipse(Brushes.DarkGray, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+            }
+            if (beurt % 2 == 1 && bordData[x, y, 3] == 1)
+            {
+                if (helpEnabled == true)
+                { 
+                    paintgr.FillEllipse(Brushes.LightSalmon, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
                 }
             }
         }
     }
+
+    aantalRood.Text = $"{scoreRood}";
+    aantalBlauw.Text = $"{scoreBlauw}";
+
+    if (roodHeeftZet == false && blauwHeeftZet == false)
+    {
+        eindeSpel();
+    }
+
+
 }
 
 void bordGeklikt(object o, MouseEventArgs mea)
 {
-    Point hier = mea.Location;
-    int selectedVakNumHorizontaal = 0;
-    while (selectedVakNumHorizontaal * bordVakjeLengte < hier.X - bordX)
+    if (spelBezig == true)
     {
-        selectedVakNumHorizontaal++;
-    }
-    selectedVakNumHorizontaal -= 1;
-    int selectedVakNumVerticaal = 0;
-    while (selectedVakNumVerticaal * bordVakjeLengte < hier.Y - bordY)
-    {
-        selectedVakNumVerticaal++;
-    }
-    selectedVakNumVerticaal -= 1;
-    if (selectedVakNumHorizontaal < 0 || selectedVakNumHorizontaal >= bordDimensie);
-    else
-    {
-        if (selectedVakNumVerticaal < 0 || selectedVakNumVerticaal >= bordDimensie);
+        Point hier = mea.Location;
+        int selectedVakNumHorizontaal = 0;
+        while (selectedVakNumHorizontaal * bordVakjeLengte < hier.X - bordX)
+        {
+            selectedVakNumHorizontaal++;
+        }
+        selectedVakNumHorizontaal -= 1;
+        int selectedVakNumVerticaal = 0;
+        while (selectedVakNumVerticaal * bordVakjeLengte < hier.Y - bordY)
+        {
+            selectedVakNumVerticaal++;
+        }
+        selectedVakNumVerticaal -= 1;
+        if (selectedVakNumHorizontaal < 0 || selectedVakNumHorizontaal >= bordDimensie) ;
         else
         {
-            if (bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] == 0)
+            if (selectedVakNumVerticaal < 0 || selectedVakNumVerticaal >= bordDimensie) ;
+            else
             {
-                if (beurt % 2 == 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 3] == 1)
+                if (bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] == 0)
                 {
-                    //upate tile colors
-                    bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 1;
-                    updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
+                    if (beurt % 2 == 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 3] == 1)
+                    {
+                        //upate tile colors
+                        bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 1;
+                        updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
 
-                    //update score
-                    intRood++;
-                    aantalRood.Text = $"{intRood}";
+                        //update beurt
+                        status.ForeColor = Color.DarkBlue;
+                        status.Text = "Blauw aan zet";
+                        beurt++;
+                        bordLabel.Invalidate();
+                    }
+                    if (beurt % 2 != 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 4] == 1)
+                    {
+                        //upate tile colors
+                        bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 2;
+                        updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
 
-                    //update beurt
-                    status.ForeColor = Color.DarkBlue;
-                    status.Text = "Blauw aan zet";
-                    beurt++;
-                    bordLabel.Invalidate();
-                }
-                if (beurt % 2 != 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 4] == 1)
-                {
-                    //upate tile colors
-                    bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 2;
-                    updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
-
-                    //update score
-                    intBlauw++;
-                    aantalBlauw.Text = $"{intBlauw}";
-
-                    //update beurt
-                    status.ForeColor = Color.DarkRed;
-                    status.Text = "Rood aan zet";
-                    beurt++;
-                    bordLabel.Invalidate();
+                        //update beurt
+                        status.ForeColor = Color.DarkRed;
+                        status.Text = "Rood aan zet";
+                        beurt++;
+                        bordLabel.Invalidate();
+                    }
                 }
             }
         }
     }
-    if (intRood + intBlauw == bordDimensie * bordDimensie)
-    {
-        if (intRood > intBlauw)
-        {
-            status.ForeColor = Color.DarkRed;
-            status.Text = "Rood heeft gewonnen!";
-        }
-        if (intRood < intBlauw)
-        {
-            status.ForeColor = Color.DarkBlue;
-            status.Text = "Blauw heeft gewonnen!";
-        }
-        else
-        {
-            status.Location = new Point(227, 45);
-            status.ForeColor = Color.Black;
-            status.Text = "Remise";
-        }
-        scherm.Invalidate();
-    }
 }
 
+void helpFunctie(object o, EventArgs ea)
+{
+    helpEnabled = !helpEnabled;
+    bordLabel.Invalidate();
+}
+
+
 bordLabel.MouseClick += bordGeklikt;
-nieuwspel.Click += bordDimensieSelectie;
-//help.Click += helpfunctie; moet nog gemaakt worden
-bordSelectie.SelectedValueChanged += bordDimensieSelectie;
+nieuwspel.Click += niewSpel;
+help.Click += helpFunctie;
 bordLabel.Paint += teken;
 
-bordDimensieSelectie(null, null);
+niewSpel(null, null);
 
 Application.Run(scherm);
