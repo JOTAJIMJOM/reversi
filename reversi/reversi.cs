@@ -246,8 +246,6 @@ void kanPlaatsenOp()
                                         if (bordData[x + xOffset, y + yOffset, 2] == 1) //plaatsbaar(stopt met andere directies checken)
                                         {
                                             bordData[x, y, 3] = 1;
-                                            xSurrounding = 2;
-                                            ySurrounding = 2;
                                             roodHeeftZet = true;
                                             break;
                                         }
@@ -277,8 +275,6 @@ void kanPlaatsenOp()
                                         if (bordData[x + xOffset, y + yOffset, 2] == 2) //plaatsbaar(stopt met andere directies checken)
                                         {
                                             bordData[x, y, 4] = 1;
-                                            xSurrounding = 2;
-                                            ySurrounding = 2;
                                             blauwHeeftZet = true;
                                             break;
                                         }
