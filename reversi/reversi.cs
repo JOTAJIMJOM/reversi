@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -223,7 +224,7 @@ void kanPlaatsenOp()
                         if (xSurrounding != 0 || ySurrounding != 0)
                         {
                             //de plaatsbare tiles voor rood in de bordData array zetten
-                            try
+                            if (x + xSurrounding >= 0 && x + xSurrounding < bordDimensie && y + ySurrounding >= 0 && y + ySurrounding < bordDimensie)
                             {
                                 if (bordData[x + xSurrounding, y + ySurrounding, 2] == 2)
                                 {
@@ -232,20 +233,29 @@ void kanPlaatsenOp()
 
                                     while (bordData[x + xOffset, y + yOffset, 2] == 2)
                                     {
-                                        xOffset += xSurrounding;
-                                        yOffset += ySurrounding;
-                                        if (bordData[x + xOffset, y + yOffset, 2] == 1)
+                                        if (x + xSurrounding + xOffset >= 0 && x + xSurrounding + xOffset < bordDimensie && y + ySurrounding + yOffset >= 0 && y + ySurrounding + yOffset < bordDimensie)
+                                        {
+                                            xOffset += xSurrounding;
+                                            yOffset += ySurrounding;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+
+                                        if (bordData[x + xOffset, y + yOffset, 2] == 1) //plaatsbaar(stopt met andere directies checken)
                                         {
                                             bordData[x, y, 3] = 1;
+                                            xSurrounding = 2;
+                                            ySurrounding = 2;
                                             roodHeeftZet = true;
                                             break;
                                         }
                                     }
                                 }
                             }
-                            catch { }
                             //de plaatsbare tiles voor blauw in de bordData array zetten
-                            try
+                            if (x + xSurrounding >= 0 && x + xSurrounding < bordDimensie && y + ySurrounding >= 0 && y + ySurrounding < bordDimensie)
                             {
                                 if (bordData[x + xSurrounding, y + ySurrounding, 2] == 1)
                                 {
@@ -254,18 +264,27 @@ void kanPlaatsenOp()
 
                                     while (bordData[x + xOffset, y + yOffset, 2] == 1)
                                     {
-                                        xOffset += xSurrounding;
-                                        yOffset += ySurrounding;
-                                        if (bordData[x + xOffset, y + yOffset, 2] == 2)
+                                        if (x + xSurrounding + xOffset >= 0 && x + xSurrounding + xOffset < bordDimensie && y + ySurrounding + yOffset >= 0 && y + ySurrounding + yOffset < bordDimensie)
+                                        {
+                                            xOffset += xSurrounding;
+                                            yOffset += ySurrounding;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+
+                                        if (bordData[x + xOffset, y + yOffset, 2] == 2) //plaatsbaar(stopt met andere directies checken)
                                         {
                                             bordData[x, y, 4] = 1;
+                                            xSurrounding = 2;
+                                            ySurrounding = 2;
                                             blauwHeeftZet = true;
                                             break;
                                         }
                                     }
                                 }
                             }
-                            catch { }
 
                         }
                     }
@@ -397,7 +416,6 @@ void teken(object o, PaintEventArgs pea)
             status.ForeColor = donkereKleur1;
             status.Text = "Speler 1 aan zet";
             beurt++;
-            bordLabel.Invalidate();
         }
     }
     if (beurt % 2 == 1)
@@ -407,7 +425,6 @@ void teken(object o, PaintEventArgs pea)
             status.ForeColor = donkereKleur2;
             status.Text = "Speler 2 aan zet";
             beurt++;
-            bordLabel.Invalidate();
         }
     }
 
@@ -551,9 +568,9 @@ void kleurVeranderen1(object o, EventArgs ea)
     if (beurt % 2 == 1)
     {
         status.ForeColor = donkereKleur1;
+        bordLabel.Invalidate();
+        scherm.Invalidate();
     }
-    bordLabel.Invalidate();
-    scherm.Invalidate();
 }
 void kleurVeranderen2(object o, EventArgs ea)
 {
@@ -588,9 +605,9 @@ void kleurVeranderen2(object o, EventArgs ea)
     if (beurt % 2 != 1)
     {
         status.ForeColor = donkereKleur2;
+        bordLabel.Invalidate();
+        scherm.Invalidate();
     }
-    bordLabel.Invalidate();
-    scherm.Invalidate();
 }
 
 bordLabel.MouseClick += bordGeklikt;
