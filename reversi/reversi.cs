@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -26,8 +25,8 @@ scherm.Text = "Reversi";
 scherm.BackColor = Color.FromArgb(100, 125, 65);
 scherm.ClientSize = new Size(500, 500);
 
-Font font = new Font("Times New Roman", 14, FontStyle.Bold);
-Font stenenFont = new Font("Times New Roman", 12, FontStyle.Bold);
+Font statusFont = new Font("Times New Roman", 14, FontStyle.Bold);
+Font knopFont = new Font("Times New Roman", 12, FontStyle.Bold);
 Size buttonSize = new Size(100, 30);
 Size miniButtonSize = new Size(30, 30);
 Size textSize = new Size(22, 20);
@@ -44,13 +43,13 @@ scherm.Controls.Add(kleurKnop2);
 
 Color[] kleuren = new[]
 {
-    Color.FromArgb(255, 0, 0), Color.FromArgb(255, 255, 0), Color.FromArgb(0, 255, 0), Color.FromArgb(0, 255, 255), Color.FromArgb(0, 0, 255), Color.FromArgb(255, 0, 255)
+    Color.Red, Color.DarkOrange, Color.Yellow, Color.YellowGreen, Color.DarkGreen, Color.Cyan, Color.Blue, Color.BlueViolet, Color.Magenta, Color.DimGray, Color.FromArgb(45, 45, 45)
 };
 int press1 = 0;
 int press2 = 0;
 
 Color rgbKleur1 = kleuren[0];
-Color rgbKleur2 = kleuren[4];
+Color rgbKleur2 = kleuren[6];
 kleurKnop1.BackColor = rgbKleur1;
 kleurKnop2.BackColor = rgbKleur2;
 
@@ -65,7 +64,7 @@ nieuwspel.Location = new Point(75, 40);
 nieuwspel.Size = buttonSize;
 scherm.Controls.Add(nieuwspel);
 nieuwspel.BackColor = lichteKleur1;
-nieuwspel.Font = stenenFont;
+nieuwspel.Font = knopFont;
 nieuwspel.Text = "Nieuw spel";
 
 Button help = new Button();
@@ -73,13 +72,13 @@ help.Location = new Point(325, 40);
 help.Size = buttonSize;
 scherm.Controls.Add(help);
 help.BackColor = lichteKleur2;
-help.Font = stenenFont;
+help.Font = knopFont;
 help.Text = "Help";
 
 Label aantalRood = new Label();
 aantalRood.Location = new Point(115, 115);
 aantalRood.Size = textSize;
-aantalRood.Font = stenenFont;
+aantalRood.Font = knopFont;
 aantalRood.TextAlign = ContentAlignment.MiddleCenter;
 scherm.Controls.Add(aantalRood);
 aantalRood.ForeColor = rgbKleur1;
@@ -88,7 +87,7 @@ aantalRood.Text = $"{scoreRood}";
 Label aantalBlauw = new Label();
 aantalBlauw.Location = new Point(364, 115);
 aantalBlauw.Size = textSize;
-aantalBlauw.Font = stenenFont;
+aantalBlauw.Font = knopFont;
 scherm.Controls.Add(aantalBlauw);
 aantalBlauw.TextAlign = ContentAlignment.MiddleCenter;
 aantalBlauw.ForeColor = rgbKleur2;
@@ -97,22 +96,31 @@ aantalBlauw.Text = $"{scoreBlauw}";
 Label status = new Label();
 status.Location = new Point(200, 45);
 status.Size = new Size(100, 60);
-status.Font = font;
+status.Font = statusFont;
 scherm.Controls.Add(status);
 status.TextAlign = ContentAlignment.MiddleCenter;
+
+Label beurtTeller = new Label();
+beurtTeller.Location = new Point(200, 15);
+beurtTeller.Size = buttonSize;
+beurtTeller.Font = knopFont;
+beurtTeller.TextAlign = ContentAlignment.MiddleCenter;
+scherm.Controls.Add(beurtTeller);
+beurtTeller.ForeColor = Color.Black;
+beurtTeller.Text = $"Beurt {beurt}";
 
 ComboBox bordSelectie = new ComboBox();
 bordSelectie.Location = new Point(200, 120);
 bordSelectie.Size = new Size(100, 30);
 scherm.Controls.Add(bordSelectie);
 bordSelectie.BackColor = Color.FromArgb(255, 255, 255);
-bordSelectie.Font = font;
+bordSelectie.Font = statusFont;
 bordSelectie.Text = "6x6";
 bordSelectie.Items.Add("4x4");
 bordSelectie.Items.Add("6x6");
 bordSelectie.Items.Add("8x8");
 bordSelectie.Items.Add("10x10");
-bordSelectie.Font = font;
+bordSelectie.Font = statusFont;
 
 Bitmap bitmapBord = new Bitmap(500, 500);
 Label bordLabel = new Label();
@@ -145,6 +153,7 @@ void nieuwSpel(object o, EventArgs ea)
         penZwart.Width = 2;
     }
     beurt = 1;
+    beurtTeller.Text = $"Beurt {beurt}";
     status.ForeColor = donkereKleur1;
     status.Text = "Speler 1 aan zet";
     scoreRood = 2;
@@ -524,6 +533,7 @@ void bordGeklikt(object o, MouseEventArgs mea)
                         beurt++;
                         bordLabel.Invalidate();
                     }
+                    beurtTeller.Text = $"Beurt {beurt}";
                 }
             }
         }
@@ -539,7 +549,7 @@ void helpFunctie(object o, EventArgs ea)
 void kleurVeranderen1(object o, EventArgs ea)
 {
     press1++;
-    if (press1 > 5)
+    if (press1 > 10)
     {
         press1 = 0;
     }
@@ -547,7 +557,7 @@ void kleurVeranderen1(object o, EventArgs ea)
     if (rgbKleur1 == rgbKleur2)
     {
         press1++;
-        if (press1 > 5)
+        if (press1 > 10)
         {
             press1 = 0;
         }
@@ -568,14 +578,14 @@ void kleurVeranderen1(object o, EventArgs ea)
     if (beurt % 2 == 1)
     {
         status.ForeColor = donkereKleur1;
-        bordLabel.Invalidate();
-        scherm.Invalidate();
     }
+    bordLabel.Invalidate();
+    scherm.Invalidate();
 }
 void kleurVeranderen2(object o, EventArgs ea)
 {
     press2++;
-    if (press2 > 5)
+    if (press2 > 10)
     {
         press2 = 0;
     }
@@ -584,7 +594,7 @@ void kleurVeranderen2(object o, EventArgs ea)
     if (rgbKleur2 == rgbKleur1)
     {
         press2++;
-        if (press2 > 5)
+        if (press2 > 10)
         {
             press2 = 0;
         }
@@ -605,9 +615,9 @@ void kleurVeranderen2(object o, EventArgs ea)
     if (beurt % 2 != 1)
     {
         status.ForeColor = donkereKleur2;
-        bordLabel.Invalidate();
-        scherm.Invalidate();
     }
+    bordLabel.Invalidate();
+    scherm.Invalidate();
 }
 
 bordLabel.MouseClick += bordGeklikt;
