@@ -3,109 +3,105 @@ using System.Drawing;
 using System.Windows.Forms;
 
 int beurt = 1;
-int scoreRood = 2;
-int scoreBlauw = 2;
+int scoreSpeler1 = 2;
+int scoreSpeler2 = 2;
 
 int bordX = 100;
 int bordY = 180;
 int bordLengte = 300;
 int bordDimensie = 6;
+
 bool helpEnabled = false;
-bool roodHeeftZet = false;
-bool blauwHeeftZet = false;
+bool speler1HeeftZet = false;
+bool speler2HeeftZet = false;
 bool spelBezig = true;
 
 int bordVakjeLengte = bordLengte / bordDimensie;
-Pen penZwart = new Pen(Color.Black, 3);
-
 int[,,] bordData = new int[bordDimensie, bordDimensie, 5];
 
 Form scherm = new Form();
-scherm.Text = "Reversi";
-scherm.BackColor = Color.FromArgb(100, 125, 65);
 scherm.ClientSize = new Size(500, 500);
+scherm.BackColor = Color.FromArgb(100, 125, 65);
+scherm.Text = "Reversi";
 
-Font statusFont = new Font("Times New Roman", 14, FontStyle.Bold);
-Font knopFont = new Font("Times New Roman", 12, FontStyle.Bold);
-Size buttonSize = new Size(100, 30);
-Size miniButtonSize = new Size(30, 30);
+Font bigFont = new Font("Times New Roman", 14, FontStyle.Bold);
+Font smallFont = new Font("Times New Roman", 12, FontStyle.Bold);
+Size bigButtonSize = new Size(100, 30);
+Size smallButtonSize = new Size(30, 30);
 Size textSize = new Size(22, 20);
 
 Button kleurKnop1 = new Button();
 kleurKnop1.Location = new Point(40, 110);
-kleurKnop1.Size = miniButtonSize;
+kleurKnop1.Size = smallButtonSize;
 scherm.Controls.Add(kleurKnop1);
 
 Button kleurKnop2 = new Button();
 kleurKnop2.Location = new Point(430, 110);
-kleurKnop2.Size = miniButtonSize;
+kleurKnop2.Size = smallButtonSize;
 scherm.Controls.Add(kleurKnop2);
 
 Color[] kleuren = new[]
 {
     Color.Red, Color.DarkOrange, Color.Yellow, Color.YellowGreen, Color.DarkGreen, Color.Cyan, Color.Blue, Color.BlueViolet, Color.Magenta, Color.DimGray, Color.FromArgb(45, 45, 45)
 };
-int press1 = 0;
-int press2 = 0;
 
-Color rgbKleur1 = kleuren[0];
-Color rgbKleur2 = kleuren[6];
-kleurKnop1.BackColor = rgbKleur1;
-kleurKnop2.BackColor = rgbKleur2;
+Color kleur1 = kleuren[0];
+Color kleur2 = kleuren[6];
+kleurKnop1.BackColor = kleur1;
+kleurKnop2.BackColor = kleur2;
 
-Color lichteKleur1 = ControlPaint.LightLight(rgbKleur1);
-Color donkereKleur1 = ControlPaint.Dark(rgbKleur1);
-
-Color lichteKleur2 = ControlPaint.LightLight(rgbKleur2);
-Color donkereKleur2 = ControlPaint.Dark(rgbKleur2);
+Color lichteKleur1 = ControlPaint.LightLight(kleur1);
+Color donkereKleur1 = ControlPaint.Dark(kleur1);
+Color lichteKleur2 = ControlPaint.LightLight(kleur2);
+Color donkereKleur2 = ControlPaint.Dark(kleur2);
 
 Button nieuwspel = new Button();
 nieuwspel.Location = new Point(75, 40);
-nieuwspel.Size = buttonSize;
+nieuwspel.Size = bigButtonSize;
 scherm.Controls.Add(nieuwspel);
+nieuwspel.Font = smallFont;
 nieuwspel.BackColor = lichteKleur1;
-nieuwspel.Font = knopFont;
 nieuwspel.Text = "Nieuw spel";
 
 Button help = new Button();
 help.Location = new Point(325, 40);
-help.Size = buttonSize;
+help.Size = bigButtonSize;
 scherm.Controls.Add(help);
+help.Font = smallFont;
 help.BackColor = lichteKleur2;
-help.Font = knopFont;
 help.Text = "Help";
 
-Label aantalRood = new Label();
-aantalRood.Location = new Point(115, 115);
-aantalRood.Size = textSize;
-aantalRood.Font = knopFont;
-aantalRood.TextAlign = ContentAlignment.MiddleCenter;
-scherm.Controls.Add(aantalRood);
-aantalRood.ForeColor = rgbKleur1;
-aantalRood.Text = $"{scoreRood}";
+Label aantalStenenKleur1 = new Label();
+aantalStenenKleur1.Location = new Point(115, 115);
+aantalStenenKleur1.TextAlign = ContentAlignment.MiddleCenter;
+aantalStenenKleur1.Size = textSize;
+scherm.Controls.Add(aantalStenenKleur1);
+aantalStenenKleur1.Font = smallFont;
+aantalStenenKleur1.ForeColor = kleur1;
+aantalStenenKleur1.Text = $"{scoreSpeler1}";
 
-Label aantalBlauw = new Label();
-aantalBlauw.Location = new Point(364, 115);
-aantalBlauw.Size = textSize;
-aantalBlauw.Font = knopFont;
-scherm.Controls.Add(aantalBlauw);
-aantalBlauw.TextAlign = ContentAlignment.MiddleCenter;
-aantalBlauw.ForeColor = rgbKleur2;
-aantalBlauw.Text = $"{scoreBlauw}";
+Label aantalStenenKleur2 = new Label();
+aantalStenenKleur2.Location = new Point(364, 115);
+aantalStenenKleur2.TextAlign = ContentAlignment.MiddleCenter;
+aantalStenenKleur2.Size = textSize;
+scherm.Controls.Add(aantalStenenKleur2);
+aantalStenenKleur2.Font = smallFont;
+aantalStenenKleur2.ForeColor = kleur2;
+aantalStenenKleur2.Text = $"{scoreSpeler2}";
 
 Label status = new Label();
 status.Location = new Point(200, 45);
-status.Size = new Size(100, 60);
-status.Font = statusFont;
-scherm.Controls.Add(status);
 status.TextAlign = ContentAlignment.MiddleCenter;
+status.Size = new Size(100, 60);
+scherm.Controls.Add(status);
+status.Font = bigFont;
 
 Label beurtTeller = new Label();
 beurtTeller.Location = new Point(200, 15);
-beurtTeller.Size = buttonSize;
-beurtTeller.Font = knopFont;
 beurtTeller.TextAlign = ContentAlignment.MiddleCenter;
+beurtTeller.Size = bigButtonSize;
 scherm.Controls.Add(beurtTeller);
+beurtTeller.Font = smallFont;
 beurtTeller.ForeColor = Color.Black;
 beurtTeller.Text = $"Beurt {beurt}";
 
@@ -113,22 +109,23 @@ ComboBox bordSelectie = new ComboBox();
 bordSelectie.Location = new Point(200, 120);
 bordSelectie.Size = new Size(100, 30);
 scherm.Controls.Add(bordSelectie);
+bordSelectie.Font = bigFont;
 bordSelectie.BackColor = Color.FromArgb(255, 255, 255);
-bordSelectie.Font = statusFont;
 bordSelectie.Text = "6x6";
 bordSelectie.Items.Add("4x4");
 bordSelectie.Items.Add("6x6");
 bordSelectie.Items.Add("8x8");
 bordSelectie.Items.Add("10x10");
-bordSelectie.Font = statusFont;
 
 Bitmap bitmapBord = new Bitmap(500, 500);
 Label bordLabel = new Label();
-scherm.Controls.Add(bordLabel);
 bordLabel.Location = new Point(0, 0);
 bordLabel.Size = new Size(500, 500);
+scherm.Controls.Add(bordLabel);
 bordLabel.Image = bitmapBord;
+
 Graphics bitgr = Graphics.FromImage(bitmapBord);
+Pen penZwart = new Pen(Color.Black, 3);
 
 void nieuwSpel(object o, EventArgs ea)
 {
@@ -153,13 +150,14 @@ void nieuwSpel(object o, EventArgs ea)
         penZwart.Width = 2;
     }
     beurt = 1;
+    scoreSpeler1 = 2;
+    scoreSpeler2 = 2;
+
     beurtTeller.Text = $"Beurt {beurt}";
     status.ForeColor = donkereKleur1;
     status.Text = "Speler 1 aan zet";
-    scoreRood = 2;
-    scoreBlauw = 2;
-    aantalRood.Text = $"{scoreRood}";
-    aantalBlauw.Text = $"{scoreBlauw}";
+    aantalStenenKleur1.Text = $"{scoreSpeler1}";
+    aantalStenenKleur2.Text = $"{scoreSpeler2}";
     bordLabel.Invalidate();
     spelBezig = true;
 
@@ -205,19 +203,21 @@ void nieuwSpel(object o, EventArgs ea)
     bordData[bordDimensie / 2, bordDimensie / 2 - 1, 2] = 2;
 }
 
-Brush rgbBrush1 = new SolidBrush(rgbKleur1);
-Brush rgbBrush2 = new SolidBrush(rgbKleur2);
-Brush rgbBrushLight1 = new SolidBrush(lichteKleur1);
-Brush rgbBrushLight2 = new SolidBrush(lichteKleur2);
-Brush rgbBrushDark1 = new SolidBrush(donkereKleur1);
-Brush rgbBrushDark2 = new SolidBrush(donkereKleur2);
-Pen penRood = new Pen(rgbBrush1, 10);
-Pen penBlauw = new Pen(rgbBrush2, 10);
+Brush brush1 = new SolidBrush(kleur1);
+Brush brush2 = new SolidBrush(kleur2);
+
+Brush brushLight1 = new SolidBrush(lichteKleur1);
+Brush brushLight2 = new SolidBrush(lichteKleur2);
+Brush brushDark1 = new SolidBrush(donkereKleur1);
+Brush brushDark2 = new SolidBrush(donkereKleur2);
+
+Pen pen1 = new Pen(brush1, 10);
+Pen pen2 = new Pen(brush2, 10);
 
 void kanPlaatsenOp()
 {
-    blauwHeeftZet = false;
-    roodHeeftZet = false;
+    speler2HeeftZet = false;
+    speler1HeeftZet = false;
     for (int x = 0; x < bordDimensie; x++)
     {
         for (int y = 0; y < bordDimensie; y++)
@@ -252,10 +252,10 @@ void kanPlaatsenOp()
                                             break;
                                         }
 
-                                        if (bordData[x + xOffset, y + yOffset, 2] == 1) //plaatsbaar(stopt met andere directies checken)
+                                        if (bordData[x + xOffset, y + yOffset, 2] == 1) //plaatsbaar
                                         {
                                             bordData[x, y, 3] = 1;
-                                            roodHeeftZet = true;
+                                            speler1HeeftZet = true;
                                             break;
                                         }
                                     }
@@ -281,10 +281,10 @@ void kanPlaatsenOp()
                                             break;
                                         }
 
-                                        if (bordData[x + xOffset, y + yOffset, 2] == 2) //plaatsbaar(stopt met andere directies checken)
+                                        if (bordData[x + xOffset, y + yOffset, 2] == 2) //plaatsbaar
                                         {
                                             bordData[x, y, 4] = 1;
-                                            blauwHeeftZet = true;
+                                            speler2HeeftZet = true;
                                             break;
                                         }
                                     }
@@ -309,7 +309,7 @@ void updateOmliggendeStennen(int x, int y,int beurt)
         {
             if (xSurrounding != 0 || ySurrounding != 0)
             {
-                //de omliggende tiles voor rood updaten in borddata array
+                //de omliggende stenen voor kleur 1 updaten in bordData array
                 if (beurt % 2 == 1)
                 {
                     try
@@ -342,7 +342,7 @@ void updateOmliggendeStennen(int x, int y,int beurt)
                     }
                     catch { }
                 }
-                else //de omliggende tiles voor blauw updaten in borddata array
+                else //de omliggende stenen voor kleur 2 updaten in bordData array
                 {
                     try
                     {
@@ -384,7 +384,7 @@ void updateOmliggendeStennen(int x, int y,int beurt)
 void eindeSpel()
 {
     spelBezig = false;
-    if (scoreRood > scoreBlauw)
+    if (scoreSpeler1 > scoreSpeler2)
     {
         status.ForeColor = donkereKleur1;
         status.Text = "Speler 1 heeft gewonnen!";
@@ -392,7 +392,7 @@ void eindeSpel()
     }
     else
     {
-    if (scoreRood < scoreBlauw)
+        if (scoreSpeler1 < scoreSpeler2)
         {
             status.ForeColor = donkereKleur2;
             status.Text = "Speler 2 heeft gewonnen!";
@@ -411,12 +411,13 @@ void teken(object o, PaintEventArgs pea)
 {
     Graphics paintgr = pea.Graphics;
     kanPlaatsenOp();
-    scoreRood = 0;
-    scoreBlauw = 0;
+
+    scoreSpeler1 = 0;
+    scoreSpeler2 = 0;
 
     if (beurt % 2 == 0)
     {
-        if (blauwHeeftZet == false)
+        if (speler2HeeftZet == false)
         {
             status.ForeColor = donkereKleur1;
             status.Text = "Speler 1 aan zet";
@@ -425,7 +426,7 @@ void teken(object o, PaintEventArgs pea)
     }
     if (beurt % 2 == 1)
     {
-        if (roodHeeftZet == false)
+        if (speler1HeeftZet == false)
         {
             status.ForeColor = donkereKleur2;
             status.Text = "Speler 2 aan zet";
@@ -439,45 +440,44 @@ void teken(object o, PaintEventArgs pea)
         {
             if (bordData[x, y, 2] == 1)
             {
-                scoreRood++;
-                paintgr.FillEllipse(rgbBrush1, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
-                paintgr.FillEllipse(rgbBrushDark1, bordData[x, y, 0] + bordVakjeLengte / 6, bordData[x, y, 1] + bordVakjeLengte / 6, bordVakjeLengte / 7 * 5, bordVakjeLengte / 7 * 5);
+                scoreSpeler1++;
+                paintgr.FillEllipse(brush1, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                paintgr.FillEllipse(brushDark1, bordData[x, y, 0] + bordVakjeLengte / 6, bordData[x, y, 1] + bordVakjeLengte / 6, bordVakjeLengte / 7 * 5, bordVakjeLengte / 7 * 5);
             }
             if (bordData[x, y, 2] == 2)
             {
-                scoreBlauw++;
-                paintgr.FillEllipse(rgbBrush2, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
-                paintgr.FillEllipse(rgbBrushDark2, bordData[x, y, 0] + bordVakjeLengte / 6, bordData[x, y, 1] + bordVakjeLengte / 6, bordVakjeLengte / 7 * 5, bordVakjeLengte / 7 * 5);
+                scoreSpeler2++;
+                paintgr.FillEllipse(brush2, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                paintgr.FillEllipse(brushDark2, bordData[x, y, 0] + bordVakjeLengte / 6, bordData[x, y, 1] + bordVakjeLengte / 6, bordVakjeLengte / 7 * 5, bordVakjeLengte / 7 * 5);
             }
 
             if (beurt % 2 == 0 && bordData[x, y, 4] == 1)
             {
                 if (helpEnabled == true)
                 {
-                    paintgr.FillEllipse(rgbBrushLight2, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                    paintgr.FillEllipse(brushLight2, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
                 }
             }
             if (beurt % 2 == 1 && bordData[x, y, 3] == 1)
             {
                 if (helpEnabled == true)
                 { 
-                    paintgr.FillEllipse(rgbBrushLight1, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
+                    paintgr.FillEllipse(brushLight1, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
                 }
             }
         }
     }
 
-    aantalRood.Text = $"{scoreRood}";
-    aantalBlauw.Text = $"{scoreBlauw}";
-    paintgr.DrawEllipse(penRood, bordX, bordX, bordX / 2, bordX / 2);
-    paintgr.DrawEllipse(penBlauw, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2);
+    aantalStenenKleur1.Text = $"{scoreSpeler1}";
+    aantalStenenKleur2.Text = $"{scoreSpeler2}";
 
-    if (roodHeeftZet == false && blauwHeeftZet == false)
+    paintgr.DrawEllipse(pen1, bordX, bordX, bordX / 2, bordX / 2);
+    paintgr.DrawEllipse(pen2, 3 * bordX + bordX / 2, bordX, bordX / 2, bordX / 2);
+
+    if (speler1HeeftZet == false && speler2HeeftZet == false)
     {
         eindeSpel();
     }
-
-
 }
 
 void bordGeklikt(object o, MouseEventArgs mea)
@@ -507,7 +507,7 @@ void bordGeklikt(object o, MouseEventArgs mea)
                 {
                     if (beurt % 2 == 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 3] == 1)
                     {
-                        //upate tile colors
+                        //update steenkleuren
                         bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 1;
                         updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
 
@@ -519,7 +519,7 @@ void bordGeklikt(object o, MouseEventArgs mea)
                     }
                     if (beurt % 2 != 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 4] == 1)
                     {
-                        //upate tile colors
+                        //update steenkleuren
                         bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 2;
                         updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
 
@@ -542,6 +542,8 @@ void helpFunctie(object o, EventArgs ea)
     bordLabel.Invalidate();
 }
 
+int press1 = 0;
+int press2 = 0;
 void kleurVeranderen1(object o, EventArgs ea)
 {
     press1++;
@@ -549,28 +551,27 @@ void kleurVeranderen1(object o, EventArgs ea)
     {
         press1 = 0;
     }
-    rgbKleur1 = kleuren[press1];
-    if (rgbKleur1 == rgbKleur2)
+    kleur1 = kleuren[press1];
+    if (kleur1 == kleur2)
     {
         press1++;
         if (press1 > 10)
         {
             press1 = 0;
         }
-        rgbKleur1 = kleuren[press1];
+        kleur1 = kleuren[press1];
     }
-    lichteKleur1 = ControlPaint.LightLight(rgbKleur1);
-    donkereKleur1 = ControlPaint.Dark(rgbKleur1);
+    lichteKleur1 = ControlPaint.LightLight(kleur1);
+    donkereKleur1 = ControlPaint.Dark(kleur1);
 
-    rgbBrush1 = new SolidBrush(rgbKleur1);
-    rgbBrushLight1 = new SolidBrush(lichteKleur1);
-    rgbBrushDark1 = new SolidBrush(donkereKleur1);
-    penRood = new Pen(rgbBrush1, 10);
+    brush1 = new SolidBrush(kleur1);
+    brushLight1 = new SolidBrush(lichteKleur1);
+    brushDark1 = new SolidBrush(donkereKleur1);
+    pen1 = new Pen(brush1, 10);
 
-    kleurKnop1.BackColor = rgbKleur1;
-    aantalRood.ForeColor = rgbKleur1;
+    kleurKnop1.BackColor = kleur1;
+    aantalStenenKleur1.ForeColor = kleur1;
     nieuwspel.BackColor = lichteKleur1;
-
     if (beurt % 2 == 1)
     {
         status.ForeColor = donkereKleur1;
@@ -585,29 +586,27 @@ void kleurVeranderen2(object o, EventArgs ea)
     {
         press2 = 0;
     }
-    rgbKleur2 = kleuren[press2];
-
-    if (rgbKleur2 == rgbKleur1)
+    kleur2 = kleuren[press2];
+    if (kleur2 == kleur1)
     {
         press2++;
         if (press2 > 10)
         {
             press2 = 0;
         }
-        rgbKleur2 = kleuren[press2];
+        kleur2 = kleuren[press2];
     }
-    lichteKleur2 = ControlPaint.LightLight(rgbKleur2);
-    donkereKleur2 = ControlPaint.Dark(rgbKleur2);
+    lichteKleur2 = ControlPaint.LightLight(kleur2);
+    donkereKleur2 = ControlPaint.Dark(kleur2);
 
-    rgbBrush2 = new SolidBrush(rgbKleur2);
-    rgbBrushLight2 = new SolidBrush(lichteKleur2);
-    rgbBrushDark2 = new SolidBrush(donkereKleur2);
-    penBlauw = new Pen(rgbBrush2, 10);
+    brush2 = new SolidBrush(kleur2);
+    brushLight2 = new SolidBrush(lichteKleur2);
+    brushDark2 = new SolidBrush(donkereKleur2);
+    pen2 = new Pen(brush2, 10);
 
-    kleurKnop2.BackColor = rgbKleur2;
-    aantalBlauw.ForeColor = rgbKleur2;
+    kleurKnop2.BackColor = kleur2;
+    aantalStenenKleur2.ForeColor = kleur2;
     help.BackColor = lichteKleur2;
-
     if (beurt % 2 != 1)
     {
         status.ForeColor = donkereKleur2;
