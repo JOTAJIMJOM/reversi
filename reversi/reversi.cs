@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
+//variabelen aanmaken
 int beurt = 1;
 int scoreSpeler1 = 2;
 int scoreSpeler2 = 2;
@@ -17,8 +18,12 @@ bool speler2HeeftZet = false;
 bool spelBezig = true;
 
 int bordVakjeLengte = bordLengte / bordDimensie;
+Pen penZwart = new Pen(Color.Black, 3);
+
+//3D array voor het bord maken
 int[,,] bordData = new int[bordDimensie, bordDimensie, 5];
 
+//form aanmaken
 Form scherm = new Form();
 scherm.ClientSize = new Size(500, 500);
 scherm.BackColor = Color.FromArgb(100, 125, 65);
@@ -30,31 +35,39 @@ Size bigButtonSize = new Size(100, 30);
 Size smallButtonSize = new Size(30, 30);
 Size textSize = new Size(22, 20);
 
+//knop voor kleur 1 aanpassen aanmaken
 Button kleurKnop1 = new Button();
 kleurKnop1.Location = new Point(40, 110);
 kleurKnop1.Size = smallButtonSize;
 scherm.Controls.Add(kleurKnop1);
 
+//knop voor kleur 2 aanpassen aanmaken
 Button kleurKnop2 = new Button();
 kleurKnop2.Location = new Point(430, 110);
 kleurKnop2.Size = smallButtonSize;
 scherm.Controls.Add(kleurKnop2);
 
+//lijst met mogelijke kleuren voor de stenen
 Color[] kleuren = new[]
 {
     Color.Red, Color.DarkOrange, Color.Yellow, Color.YellowGreen, Color.DarkGreen, Color.Cyan, Color.Blue, Color.BlueViolet, Color.Magenta, Color.DimGray, Color.FromArgb(45, 45, 45)
 };
 
-Color kleur1 = kleuren[0];
-Color kleur2 = kleuren[6];
-kleurKnop1.BackColor = kleur1;
-kleurKnop2.BackColor = kleur2;
+//begin kleuren van de stenen zetten
+Color rgbKleur1 = kleuren[0];
+Color rgbKleur2 = kleuren[6];
+kleurKnop1.BackColor = rgbKleur1;
+kleurKnop2.BackColor = rgbKleur2;
 
 Color lichteKleur1 = ControlPaint.LightLight(kleur1);
 Color donkereKleur1 = ControlPaint.Dark(kleur1);
 Color lichteKleur2 = ControlPaint.LightLight(kleur2);
 Color donkereKleur2 = ControlPaint.Dark(kleur2);
 
+Color lichteKleur2 = ControlPaint.LightLight(rgbKleur2);
+Color donkereKleur2 = ControlPaint.Dark(rgbKleur2);
+
+//nieuwspel knop aanmaken
 Button nieuwspel = new Button();
 nieuwspel.Location = new Point(75, 40);
 nieuwspel.Size = bigButtonSize;
@@ -63,6 +76,7 @@ nieuwspel.Font = smallFont;
 nieuwspel.BackColor = lichteKleur1;
 nieuwspel.Text = "Nieuw spel";
 
+//help knop aanmaken
 Button help = new Button();
 help.Location = new Point(325, 40);
 help.Size = bigButtonSize;
@@ -89,6 +103,7 @@ aantalStenenKleur2.Font = smallFont;
 aantalStenenKleur2.ForeColor = kleur2;
 aantalStenenKleur2.Text = $"{scoreSpeler2}";
 
+//tekstlabel voor de status van het spel aanmaken
 Label status = new Label();
 status.Location = new Point(200, 45);
 status.TextAlign = ContentAlignment.MiddleCenter;
@@ -96,6 +111,7 @@ status.Size = new Size(100, 60);
 scherm.Controls.Add(status);
 status.Font = bigFont;
 
+//label voor de beurtenteller tekst aanmaken
 Label beurtTeller = new Label();
 beurtTeller.Location = new Point(200, 15);
 beurtTeller.TextAlign = ContentAlignment.MiddleCenter;
@@ -105,6 +121,7 @@ beurtTeller.Font = smallFont;
 beurtTeller.ForeColor = Color.Black;
 beurtTeller.Text = $"Beurt {beurt}";
 
+//combobox voor bordgrootte maken
 ComboBox bordSelectie = new ComboBox();
 bordSelectie.Location = new Point(200, 120);
 bordSelectie.Size = new Size(100, 30);
@@ -117,6 +134,7 @@ bordSelectie.Items.Add("6x6");
 bordSelectie.Items.Add("8x8");
 bordSelectie.Items.Add("10x10");
 
+//bitmap van het bord maken
 Bitmap bitmapBord = new Bitmap(500, 500);
 Label bordLabel = new Label();
 bordLabel.Location = new Point(0, 0);
@@ -129,7 +147,7 @@ Pen penZwart = new Pen(Color.Black, 3);
 
 void nieuwSpel(object o, EventArgs ea)
 {
-    if (bordSelectie.SelectedItem == "4x4")
+    if (bordSelectie.SelectedItem == "4x4") //bordgrootte bepalen
     {
         bordDimensie = 4;
         penZwart.Width = 4;
@@ -163,7 +181,7 @@ void nieuwSpel(object o, EventArgs ea)
 
     bordVakjeLengte = bordLengte / bordDimensie;
 
-    bitgr.FillRectangle(Brushes.WhiteSmoke, bordX, bordY, bordLengte, bordLengte);
+    bitgr.FillRectangle(Brushes.WhiteSmoke, bordX, bordY, bordLengte, bordLengte); //bord wit maken
 
     //bordData array aanmaken, eerste waarde = x-coördinaat, tweede waarde = y-coördinaat, derde waarde = status van het vakje
     //0 is voor de x-coördinaat, 1 is voor de y-coördinaat, 2 is voor de status van het vakje, 3 is voor of er op het vakje geplaatst kan worden door rood en 4 is voor of er op het vakje geplaatst kan worden door blauw
@@ -226,26 +244,26 @@ void kanPlaatsenOp()
             bordData[x, y, 4] = 0;
             if (bordData[x,y,2]==0)
             {
-                for (int xSurrounding = -1; xSurrounding <= 1; xSurrounding++)
+                for (int xOmliggend = -1; xOmliggend <= 1; xOmliggend++) //iedere richting voor dat vakje langs gaan
                 {
-                    for (int ySurrounding = -1; ySurrounding <= 1; ySurrounding++)
+                    for (int yOmliggend = -1; yOmliggend <= 1; yOmliggend++)
                     {
-                        if (xSurrounding != 0 || ySurrounding != 0)
+                        if (xOmliggend != 0 || yOmliggend != 0)//niet de tile zelf checken
                         {
                             //de plaatsbare tiles voor rood in de bordData array zetten
-                            if (x + xSurrounding >= 0 && x + xSurrounding < bordDimensie && y + ySurrounding >= 0 && y + ySurrounding < bordDimensie)
+                            if (x + xOmliggend >= 0 && x + xOmliggend < bordDimensie && y + yOmliggend >= 0 && y + yOmliggend < bordDimensie)
                             {
-                                if (bordData[x + xSurrounding, y + ySurrounding, 2] == 2)
+                                if (bordData[x + xOmliggend, y + yOmliggend, 2] == 2)
                                 {
-                                    int xOffset = xSurrounding;
-                                    int yOffset = ySurrounding;
+                                    int xOffset = xOmliggend;
+                                    int yOffset = yOmliggend;
 
                                     while (bordData[x + xOffset, y + yOffset, 2] == 2)
                                     {
-                                        if (x + xSurrounding + xOffset >= 0 && x + xSurrounding + xOffset < bordDimensie && y + ySurrounding + yOffset >= 0 && y + ySurrounding + yOffset < bordDimensie)
+                                        if (x + xOmliggend + xOffset >= 0 && x + xOmliggend + xOffset < bordDimensie && y + yOmliggend + yOffset >= 0 && y + yOmliggend + yOffset < bordDimensie)
                                         {
-                                            xOffset += xSurrounding;
-                                            yOffset += ySurrounding;
+                                            xOffset += xOmliggend;
+                                            yOffset += yOmliggend;
                                         }
                                         else
                                         {
@@ -262,19 +280,19 @@ void kanPlaatsenOp()
                                 }
                             }
                             //de plaatsbare tiles voor blauw in de bordData array zetten
-                            if (x + xSurrounding >= 0 && x + xSurrounding < bordDimensie && y + ySurrounding >= 0 && y + ySurrounding < bordDimensie)
+                            if (x + xOmliggend >= 0 && x + xOmliggend < bordDimensie && y + yOmliggend >= 0 && y + yOmliggend < bordDimensie)
                             {
-                                if (bordData[x + xSurrounding, y + ySurrounding, 2] == 1)
+                                if (bordData[x + xOmliggend, y + yOmliggend, 2] == 1)
                                 {
-                                    int xOffset = xSurrounding;
-                                    int yOffset = ySurrounding;
+                                    int xOffset = xOmliggend;
+                                    int yOffset = yOmliggend;
 
                                     while (bordData[x + xOffset, y + yOffset, 2] == 1)
                                     {
-                                        if (x + xSurrounding + xOffset >= 0 && x + xSurrounding + xOffset < bordDimensie && y + ySurrounding + yOffset >= 0 && y + ySurrounding + yOffset < bordDimensie)
+                                        if (x + xOmliggend + xOffset >= 0 && x + xOmliggend + xOffset < bordDimensie && y + yOmliggend + yOffset >= 0 && y + yOmliggend + yOffset < bordDimensie)
                                         {
-                                            xOffset += xSurrounding;
-                                            yOffset += ySurrounding;
+                                            xOffset += xOmliggend;
+                                            yOffset += yOmliggend;
                                         }
                                         else
                                         {
@@ -303,34 +321,34 @@ void kanPlaatsenOp()
 
 void updateOmliggendeStennen(int x, int y,int beurt)
 {
-    for (int xSurrounding = -1; xSurrounding <= 1; xSurrounding++)
+    for (int xOmliggend = -1; xOmliggend <= 1; xOmliggend++) //door alle omliggende vakjes loopen
     {
-        for (int ySurrounding = -1; ySurrounding <= 1; ySurrounding++)
+        for (int yOmliggend = -1; yOmliggend <= 1; yOmliggend++)
         {
-            if (xSurrounding != 0 || ySurrounding != 0)
+            if (xOmliggend != 0 || yOmliggend != 0) //niet de tile zelf checken
             {
-                //de omliggende stenen voor kleur 1 updaten in bordData array
+                //de tile in directie xomliggen en yomliggend updaten
                 if (beurt % 2 == 1)
                 {
                     try
                     {
-                        if (bordData[x + xSurrounding, y + ySurrounding, 2] == 2)
+                        if (bordData[x + xOmliggend, y + yOmliggend, 2] == 2)
                         {
-                            int xOffset = xSurrounding;
-                            int yOffset = ySurrounding;
+                            int xOffset = xOmliggend;
+                            int yOffset = yOmliggend;
                             while (bordData[x + xOffset, y + yOffset, 2] == 2)
                             {
-                                xOffset += xSurrounding;
-                                yOffset += ySurrounding;
+                                xOffset += xOmliggend;
+                                yOffset += yOmliggend;
                                 if (bordData[x + xOffset, y + yOffset, 2] == 1)
                                 {
-                                    xOffset = xSurrounding;
-                                    yOffset = ySurrounding;
+                                    xOffset = xOmliggend;
+                                    yOffset = yOmliggend;
                                     while (bordData[x + xOffset, y + yOffset, 2] == 2)
                                     {
                                         bordData[x + xOffset, y + yOffset, 2] = 1;
-                                        xOffset += xSurrounding;
-                                        yOffset += ySurrounding;
+                                        xOffset += xOmliggend;
+                                        yOffset += yOmliggend;
                                         if (bordData[x + xOffset, y + yOffset, 2] == 1)
                                         {
                                             break;
@@ -346,25 +364,25 @@ void updateOmliggendeStennen(int x, int y,int beurt)
                 {
                     try
                     {
-                        if (bordData[x + xSurrounding, y + ySurrounding, 2] == 1)
+                        if (bordData[x + xOmliggend, y + yOmliggend, 2] == 1)
                         {
-                            int xOffset = xSurrounding;
-                            int yOffset = ySurrounding;
+                            int xOffset = xOmliggend;
+                            int yOffset = yOmliggend;
 
                             while (bordData[x + xOffset, y + yOffset, 2] == 1)
                             {
-                                xOffset += xSurrounding;
-                                yOffset += ySurrounding;
+                                xOffset += xOmliggend;
+                                yOffset += yOmliggend;
                                 if (bordData[x + xOffset, y + yOffset, 2] == 2)
                                 {
-                                    xOffset = xSurrounding;
-                                    yOffset = ySurrounding;
+                                    xOffset = xOmliggend;
+                                    yOffset = yOmliggend;
 
                                     while (bordData[x + xOffset, y + yOffset, 2] == 1)
                                     {
                                         bordData[x + xOffset, y + yOffset, 2] = 2;
-                                        xOffset += xSurrounding;
-                                        yOffset += ySurrounding;
+                                        xOffset += xOmliggend;
+                                        yOffset += yOmliggend;
                                         if (bordData[x + xOffset, y + yOffset, 2] == 2)
                                         {
                                             break;
@@ -415,7 +433,7 @@ void teken(object o, PaintEventArgs pea)
     scoreSpeler1 = 0;
     scoreSpeler2 = 0;
 
-    if (beurt % 2 == 0)
+    if (beurt % 2 == 0) //checken of de spelers een zet hebben
     {
         if (speler2HeeftZet == false)
         {
@@ -434,7 +452,7 @@ void teken(object o, PaintEventArgs pea)
         }
     }
 
-    for (int x = 0; x < bordDimensie; x++)
+    for (int x = 0; x < bordDimensie; x++) //stenen tekenen en score berekenen
     {
         for (int y = 0; y < bordDimensie; y++)
         {
@@ -453,14 +471,14 @@ void teken(object o, PaintEventArgs pea)
 
             if (beurt % 2 == 0 && bordData[x, y, 4] == 1)
             {
-                if (helpEnabled == true)
+                if (helpIngeschakeld == true)
                 {
                     paintgr.FillEllipse(brushLight2, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
                 }
             }
             if (beurt % 2 == 1 && bordData[x, y, 3] == 1)
             {
-                if (helpEnabled == true)
+                if (helpIngeschakeld == true)
                 { 
                     paintgr.FillEllipse(brushLight1, bordData[x, y, 0], bordData[x, y, 1], bordVakjeLengte, bordVakjeLengte);
                 }
@@ -486,7 +504,7 @@ void bordGeklikt(object o, MouseEventArgs mea)
     {
         Point hier = mea.Location;
         int selectedVakNumHorizontaal = 0;
-        while (selectedVakNumHorizontaal * bordVakjeLengte < hier.X - bordX)
+        while (selectedVakNumHorizontaal * bordVakjeLengte < hier.X - bordX) //selectedVakNumHorizontaal en Verticaal bepalen
         {
             selectedVakNumHorizontaal++;
         }
@@ -497,7 +515,7 @@ void bordGeklikt(object o, MouseEventArgs mea)
             selectedVakNumVerticaal++;
         }
         selectedVakNumVerticaal -= 1;
-        if (selectedVakNumHorizontaal < 0 || selectedVakNumHorizontaal >= bordDimensie) ;
+        if (selectedVakNumHorizontaal < 0 || selectedVakNumHorizontaal >= bordDimensie) ; //checken of er binnen het bord is geklikt
         else
         {
             if (selectedVakNumVerticaal < 0 || selectedVakNumVerticaal >= bordDimensie) ;
@@ -505,29 +523,36 @@ void bordGeklikt(object o, MouseEventArgs mea)
             {
                 if (bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] == 0)
                 {
-                    if (beurt % 2 == 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 3] == 1)
+                    //check wiens beurt het is en of diegene op dat vakje mag plaatsen
+                    if (beurt % 2 == 1)
                     {
-                        //update steenkleuren
-                        bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 1;
-                        updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
+                        if (bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 3] == 1)
+                        {
+                            //upate tile colors
+                            bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 1;
+                            updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
 
-                        //update beurt
-                        status.ForeColor = donkereKleur2;
-                        status.Text = "Speler 2 aan zet";
-                        beurt++;
-                        bordLabel.Invalidate();
+                            //update beurt
+                            status.ForeColor = donkereKleur2;
+                            status.Text = "Speler 2 aan zet";
+                            beurt++;
+                            bordLabel.Invalidate();
+                        }
                     }
-                    if (beurt % 2 != 1 && bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 4] == 1)
+                    else
                     {
-                        //update steenkleuren
-                        bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 2;
-                        updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
+                        if (bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 4] == 1)
+                        {
+                            //upate tile colors
+                            bordData[selectedVakNumHorizontaal, selectedVakNumVerticaal, 2] = 2;
+                            updateOmliggendeStennen(selectedVakNumHorizontaal, selectedVakNumVerticaal, beurt);
 
-                        //update beurt
-                        status.ForeColor = donkereKleur1;
-                        status.Text = "Speler 1 aan zet";
-                        beurt++;
-                        bordLabel.Invalidate();
+                            //update beurt
+                            status.ForeColor = donkereKleur1;
+                            status.Text = "Speler 1 aan zet";
+                            beurt++;
+                            bordLabel.Invalidate();
+                        }
                     }
                     beurtTeller.Text = $"Beurt {beurt}";
                 }
@@ -536,9 +561,9 @@ void bordGeklikt(object o, MouseEventArgs mea)
     }
 }
 
-void helpFunctie(object o, EventArgs ea)
+void helpGeklikt(object o, EventArgs ea)
 {
-    helpEnabled = !helpEnabled;
+    helpIngeschakeld = !helpIngeschakeld;
     bordLabel.Invalidate();
 }
 
@@ -617,7 +642,7 @@ void kleurVeranderen2(object o, EventArgs ea)
 
 bordLabel.MouseClick += bordGeklikt;
 nieuwspel.Click += nieuwSpel;
-help.Click += helpFunctie;
+help.Click += helpGeklikt;
 kleurKnop1.Click += kleurVeranderen1;
 kleurKnop2.Click += kleurVeranderen2;
 bordLabel.Paint += teken;
