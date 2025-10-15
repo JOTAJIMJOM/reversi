@@ -221,6 +221,7 @@ void nieuwSpel(object o, EventArgs ea)
     bordData[bordDimensie / 2, bordDimensie / 2 - 1, 2] = 2;
 }
 
+//burshes voor het tekenen van de stenen aanmaken
 Brush brush1 = new SolidBrush(kleur1);
 Brush brush2 = new SolidBrush(kleur2);
 
